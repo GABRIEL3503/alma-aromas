@@ -66,7 +66,7 @@ function formatPrice(value) {
 }
 
 function checkAuthentication() {
-  const token = localStorage.getItem('jwt_capullos-de-flor');
+  const token = localStorage.getItem('jwt_alma-aromas');
   const cartButton = document.getElementById('cart-button');
   // 🔥 Ya no tocamos scrollToBottomButton
 
@@ -102,7 +102,7 @@ const mp = new MercadoPago('APP_USR-109a0809-067e-4724-b997-c0d129201788', {
 
 // Function to create payment preference and redirect to MercadoPago checkout
 function handlePayment(totalAmount) {
-  fetch('https://octopus-app.com.ar/capullos-de-flor/create_preference', {
+  fetch('https://octopus-app.com.ar/alma-aromas/create_preference', {
 
     // fetch('http://localhost:3001/create_preference', {
     method: 'POST',
@@ -145,7 +145,7 @@ function toggleVisibility(item, button) {
   const hidden = item.style.opacity === '0.3' ? 0 : 1;  // Determinar si está oculto o visible
 
   // Enviar el cambio al servidor
-  fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${itemId}/visibility`, {
+  fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${itemId}/visibility`, {
 
     // fetch(`http://localhost:3001/api/menu/${itemId}/visibility`, {
     method: 'PUT',
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (result.isConfirmed) {
         // Enviar estas credenciales al servidor
 
-        fetch('https://octopus-app.com.ar/capullos-de-flor/api/auth/login', {
+        fetch('https://octopus-app.com.ar/alma-aromas/api/auth/login', {
           // fetch('http://localhost:3001/api/auth/login', {
           method: 'POST',
           headers: {
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .then(response => response.json())
           .then(data => {
             if (data.auth) {
-              localStorage.setItem('jwt_capullos-de-flor', data.token);
+              localStorage.setItem('jwt_alma-aromas', data.token);
               window.location.reload();  // Recargar la página
 
             } else {
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const expiry = localStorage.getItem('menuDataExpiry');
     const isExpired = !expiry || Date.now() > parseInt(expiry);
   
-    return fetch('https://octopus-app.com.ar/capullos-de-flor/api/menuVersion')
+    return fetch('https://octopus-app.com.ar/alma-aromas/api/menuVersion')
       .then(response => response.json())
       .then(serverVersionData => {
         const serverVersion = serverVersionData.version;
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           const menuData = JSON.parse(localStorage.getItem('menuData'));
           renderMenuItems(menuData);
-          const token = localStorage.getItem('jwt_capullos-de-flor');
+          const token = localStorage.getItem('jwt_alma-aromas');
           if (token) {
             makeMenuSortable();
           }
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cierre de loadMenuItems()
 
   function fetchMenuDataFromServer() {
-    return fetch('https://octopus-app.com.ar/capullos-de-flor/api/menu')
+    return fetch('https://octopus-app.com.ar/alma-aromas/api/menu')
 
       // return fetch('http://localhost:3001/api/menu')
       .then(response => response.json())
@@ -254,7 +254,7 @@ localStorage.setItem('menuData', JSON.stringify(data.data));
 localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1 hora
 
         renderMenuItems(data.data);
-        const token = localStorage.getItem('jwt_capullos-de-flor');
+        const token = localStorage.getItem('jwt_alma-aromas');
         if (token) {
           makeMenuSortable();
         }
@@ -299,7 +299,7 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
 
       // Agregar evento de clic para redirigir
       ordersButton.addEventListener('click', () => {
-        window.location.href = '/capullos-de-flor/admin.html';
+        window.location.href = '/alma-aromas/admin.html';
       });
 
       if (containerBotones) {
@@ -422,13 +422,13 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
       let bodyData = {};
 
       if (type === 'groups') {
-        apiEndpoint = `https://octopus-app.com.ar/capullos-de-flor/api/groups/order`;
+        apiEndpoint = `https://octopus-app.com.ar/alma-aromas/api/groups/order`;
         bodyData = { groups: items };
       } else if (type === 'sections') {
-        apiEndpoint = `https://octopus-app.com.ar/capullos-de-flor/api/sections/order`;
+        apiEndpoint = `https://octopus-app.com.ar/alma-aromas/api/sections/order`;
         bodyData = { sections: items }; // 🔹 Asegurar que la clave es "sections"
       } else if (type === 'items') {
-        apiEndpoint = `https://octopus-app.com.ar/capullos-de-flor/api/menu/order`;
+        apiEndpoint = `https://octopus-app.com.ar/alma-aromas/api/menu/order`;
         bodyData = { items: items };
       } else {
         console.error(`Tipo inválido: ${type}. Endpoint no encontrado.`);
@@ -442,7 +442,7 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwt_capullos-de-flor')}`
+          'Authorization': `Bearer ${localStorage.getItem('jwt_alma-aromas')}`
         },
         body: JSON.stringify(bodyData) // 🔹 Asegurar que el body tiene el formato correcto
       })
@@ -472,7 +472,7 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
 
     editDeliveryPriceButton.addEventListener('click', function () {
       // Obtener el precio actual desde la API
-      fetch('https://octopus-app.com.ar/capullos-de-flor/api/delivery')
+      fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
         // fetch('http://localhost/pedidos/api/delivery')
 
         .then(response => response.json())
@@ -495,13 +495,13 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
               }
 
               // Enviar el nuevo precio al backend
-              return fetch('https://octopus-app.com.ar/capullos-de-flor/api/delivery', {
+              return fetch('https://octopus-app.com.ar/alma-aromas/api/delivery', {
 
                 // return fetch('http://localhost:3001/api/delivery', {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('capullos-de-flor')}`
+                  'Authorization': `Bearer ${localStorage.getItem('alma-aromas')}`
                 },
                 body: JSON.stringify({ price: parseFloat(newPrice) })
               })
@@ -529,7 +529,7 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group').forEach(group => group.remove());
   
-    const isAuthenticated = !!localStorage.getItem('jwt_capullos-de-flor');
+    const isAuthenticated = !!localStorage.getItem('jwt_alma-aromas');
     const lastCreatedId = localStorage.getItem('lastCreatedItemId');
   
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
@@ -642,7 +642,7 @@ section.insertBefore(newItem, afterTitle || null);
 
 
   function loadTallesForItem(itemId) {
-    fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${itemId}/talles`)
+    fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${itemId}/talles`)
       .then(response => response.json())
       .then(tallesData => {
         const talleSelect = document.querySelector(`.menu-item[data-id="${itemId}"] .talle-select`);
@@ -741,7 +741,7 @@ section.insertBefore(newItem, afterTitle || null);
     // Mapeo de stock para almacenar colores disponibles por talle
     let stockMap = {};
 
-    fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${item.id}/talles`)
+    fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${item.id}/talles`)
       .then(response => response.json())
       .then(stockData => {
         if (stockData.data) {
@@ -901,7 +901,7 @@ section.insertBefore(newItem, afterTitle || null);
 
     console.log("📤 Enviando orden:", orderData);
 
-    fetch('https://octopus-app.com.ar/capullos-de-flor/api/orders', {
+    fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -953,7 +953,7 @@ section.insertBefore(newItem, afterTitle || null);
     if (Object.keys(cart).length === 0) {
       cartContent = '<p>Tu carrito está vacío</p>';
     } else {
-      fetch('https://octopus-app.com.ar/capullos-de-flor/api/delivery')
+      fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
         .then(response => response.json())
         .then(data => {
           const deliveryPrice = data.price || 0;
@@ -1194,7 +1194,7 @@ section.insertBefore(newItem, afterTitle || null);
     // Retornar una promesa para manejar sincronización
     return new Promise((resolve) => {
       if (isDelivery) {
-        fetch('https://octopus-app.com.ar/capullos-de-flor/api/delivery')
+        fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
           .then(response => response.json())
           .then(data => {
             const deliveryPrice = data.price || 0;
@@ -1390,8 +1390,8 @@ section.insertBefore(newItem, afterTitle || null);
 
       // ✅ Obtener secciones y stock actualizado desde el backend
       Promise.all([
-        fetch('https://octopus-app.com.ar/capullos-de-flor/api/sections').then((res) => res.json()),
-        fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${itemId}`).then((res) => res.json())
+        fetch('https://octopus-app.com.ar/alma-aromas/api/sections').then((res) => res.json()),
+        fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${itemId}`).then((res) => res.json())
       ]).then(([sectionsData, itemData]) => {
         const sections = sectionsData.data;
         const parentGroupOptions = PARENT_GROUPS.map(
@@ -1598,7 +1598,7 @@ section.insertBefore(newItem, afterTitle || null);
               formData.append('imagen', compressedFile);
             }
         
-            fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${itemId}`, {
+            fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${itemId}`, {
               method: 'PUT',
               body: formData
             })
@@ -1633,7 +1633,7 @@ section.insertBefore(newItem, afterTitle || null);
       const stockId = li.dataset.id;
 
       if (stockId) {
-        fetch(`https://octopus-app.com.ar/capullos-de-flor/api/stock/${stockId}`, {
+        fetch(`https://octopus-app.com.ar/alma-aromas/api/stock/${stockId}`, {
           method: 'DELETE'
         })
           .then((response) => response.json())
@@ -1669,11 +1669,11 @@ section.insertBefore(newItem, afterTitle || null);
   function deleteProduct(productId) {
     console.log("Ejecutando deleteProduct para ID:", productId);
   
-    fetch(`https://octopus-app.com.ar/capullos-de-flor/api/menu/${productId}`, {
+    fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${productId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('jwt_capullos-de-flor')}`
+        "Authorization": `Bearer ${localStorage.getItem('jwt_alma-aromas')}`
       }
     })
       .then(response => response.json())
@@ -1731,7 +1731,7 @@ section.insertBefore(newItem, afterTitle || null);
     });
   }
   document.getElementById('create-item-button').addEventListener('click', function () {
-    fetch('https://octopus-app.com.ar/capullos-de-flor/api/sections')
+    fetch('https://octopus-app.com.ar/alma-aromas/api/sections')
       .then(response => response.json())
       .then(data => {
         const sections = data.data;
@@ -1842,7 +1842,7 @@ localStorage.setItem('lastCreatedItemTipo', tipo);
 localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
 
             
-            fetch('https://octopus-app.com.ar/capullos-de-flor/api/menu', {
+            fetch('https://octopus-app.com.ar/alma-aromas/api/menu', {
               method: 'POST',
               body: formData
             })
@@ -1958,7 +1958,7 @@ localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
   if (createAnnouncementButton) {
 
     createAnnouncementButton.addEventListener('click', function () {
-      fetch('https://octopus-app.com.ar/capullos-de-flor/api/announcements') // Solicitud GET
+      fetch('https://octopus-app.com.ar/alma-aromas/api/announcements') // Solicitud GET
         .then(response => response.json())
         .then(data => {
           let modalTitle = 'Crear Anuncio';
@@ -2033,7 +2033,7 @@ localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
             
           }).then((result) => {
             if (result.isConfirmed) {
-              fetch('https://octopus-app.com.ar/capullos-de-flor/api/announcements', {
+              fetch('https://octopus-app.com.ar/alma-aromas/api/announcements', {
                 method: 'POST',
                 body: result.value, // Enviar el objeto FormData
               })
@@ -2087,7 +2087,7 @@ function showAnnouncementPopup(data) {
 
 // Función para cerrar la sesión
 function simpleLogout() {
-  localStorage.removeItem('jwt_capullos-de-flor');
+  localStorage.removeItem('jwt_alma-aromas');
   window.location.reload();  // Recarga la página
 }
 
@@ -2149,7 +2149,7 @@ function capitalizeFirstLetter(string) {
 }
 
 function loadMenuSections() {
-  fetch('https://octopus-app.com.ar/capullos-de-flor/api/sections')
+  fetch('https://octopus-app.com.ar/alma-aromas/api/sections')
 
     .then(response => response.json())
     .then(data => {
@@ -2289,7 +2289,7 @@ let announcementImage = new Image(); // Precargar la imagen
 
 
 // Precargar el anuncio antes de mostrar contenido
-fetch('https://octopus-app.com.ar/capullos-de-flor/api/announcements')
+fetch('https://octopus-app.com.ar/alma-aromas/api/announcements')
   .then(response => response.json())
   .then(data => {
     if (data.success && data.announcement && data.announcement.state) {

@@ -32,7 +32,7 @@ const baseRouter = express.Router();
 let db = null; // Conexión global
 let lastUsedTime = Date.now();
 
-const PORT = process.env.PORT || 3027;
+const PORT = process.env.PORT || 3030;
 
 // Abrir la conexión global si no está abierta
 function ensureDatabaseConnection() {
@@ -97,7 +97,7 @@ function bumpMenuVersion() {
   menuVersion++;
   console.log(`🔄 Nueva versión del menú: ${menuVersion}`);
 }
-const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-capullos-de-flor"; 
+const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-alma-aromas"; 
 
 // Hardcoded user for demonstration purposes
 const hardcodedUser = {
@@ -113,7 +113,7 @@ baseRouter.post('/api/auth/login', (req, res) => {
     
     // Generar el token con identificación de la app y tiempo de expiración
     const token = jwt.sign(
-      { id: hardcodedUser.username, app: "capullos-de-flor" },
+      { id: hardcodedUser.username, app: "alma-aromas" },
       JWT_SECRET,
     );
 
@@ -457,7 +457,7 @@ baseRouter.delete('/api/menu/:id', (req, res) => {
   baseRouter.post('/api/announcements', upload.single('image'), async (req, res) => {
     const db = ensureDatabaseConnection();
     const { text, paragraph, state } = req.body;
-    const BASE_URL = 'https://octopus-app.com.ar/capullos-de-flor';
+    const BASE_URL = 'https://octopus-app.com.ar/alma-aromas';
 
     let newImageUrl = '';
     if (req.file) {
@@ -1047,13 +1047,13 @@ baseRouter.get('/monitor/memory', (req, res) => {
 
 
 
-app.use('/capullos-de-flor', baseRouter);
+app.use('/alma-aromas', baseRouter);
 
 // Luego sirve el contenido estático
-app.use('/capullos-de-flor', express.static(path.join(__dirname, 'public')));
+app.use('/alma-aromas', express.static(path.join(__dirname, 'public')));
 
 // Finalmente, para todas las demás rutas bajo '/inventario', sirve el index.html
-app.get('/capullos-de-flor/*', (req, res) => {
+app.get('/alma-aromas/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 

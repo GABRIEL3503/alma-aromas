@@ -27,7 +27,7 @@ function formatDate(date) {
 }
 
 function loadOrders() {
-    fetch('https://octopus-app.com.ar/capullos-de-flor/api/orders')
+    fetch('https://octopus-app.com.ar/alma-aromas/api/orders')
         .then(response => response.json())
         .then(orders => {
             const orderList = document.getElementById('orderList');
@@ -124,7 +124,7 @@ function toggleOrderStatus(orderId) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`https://octopus-app.com.ar/capullos-de-flor/api/orders/${orderId}/status`, {
+            fetch(`https://octopus-app.com.ar/alma-aromas/api/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
