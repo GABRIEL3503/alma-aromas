@@ -701,7 +701,7 @@ section.insertBefore(newItem, afterTitle || null);
   
     const aromaDropdown = document.createElement('select');
     aromaDropdown.className = 'aroma-select';
-    aromaDropdown.innerHTML = `<option value="" disabled selected>Elegí aroma</option>`;
+    aromaDropdown.innerHTML = `<option value="" disabled selected>Aroma</option>`;
   
     fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${item.id}/talles`)
       .then(response => response.json())
