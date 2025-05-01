@@ -11,7 +11,14 @@ body {
 
 }
 
-
+.aroma-select{
+  border: none;
+    border-radius: 12px;
+    margin: 14px;
+    width: 180px;
+    padding: 12px;
+    font-size: 40px;
+}
 :root {
   --oscuro-color: #262626;
   --secundary-color: #657335;
