@@ -654,7 +654,7 @@ section.insertBefore(newItem, afterTitle || null);
           if (cantidad > 0) {
             const option = document.createElement('option');
             option.value = aroma;
-            option.textContent = `${aroma} (${cantidad})`;
+            option.textContent = aroma;
             aromaSelect.appendChild(option);
           }
         });
@@ -711,7 +711,7 @@ section.insertBefore(newItem, afterTitle || null);
           if (cantidad > 0) {
             const option = document.createElement('option');
             option.value = aroma;
-            option.textContent = `${aroma} (${cantidad})`;
+            option.textContent = aroma;
             aromaDropdown.appendChild(option);
           }
         });
