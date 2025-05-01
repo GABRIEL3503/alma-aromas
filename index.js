@@ -213,10 +213,11 @@ function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, 
 
       const itemId = this.lastID;
 
-      const insertStockQuery = 'INSERT INTO stock_items (menu_item_id, talle, color, cantidad) VALUES (?, ?, ?, ?)';
-      const stockPromises = stock.map(({ talle, color, cantidad }) => {
+      // 👇 NUEVA LÍNEA: insert con aroma
+      const insertStockQuery = 'INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)';
+      const stockPromises = stock.map(({ aroma, cantidad }) => {
         return new Promise((resolve, reject) => {
-          db.run(insertStockQuery, [itemId, talle, color, cantidad], function (err) {
+          db.run(insertStockQuery, [itemId, aroma, cantidad], function (err) {
             if (err) return reject(err);
             resolve();
           });
@@ -322,32 +323,27 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
             return res.status(404).json({ error: "Producto no encontrado." });
           }
 
-          // Obtener el stock actual antes de modificarlo
-          db.all("SELECT talle, color FROM stock_items WHERE menu_item_id = ?", [id], (err, existingStock) => {
+          db.all("SELECT aroma FROM stock_items WHERE menu_item_id = ?", [id], (err, existingStock) => {
             if (err) {
               db.run("ROLLBACK");
               return res.status(500).json({ error: err.message });
             }
 
-            const stockSet = new Set(existingStock.map(({ talle, color }) => `${talle}-${color}`));
+            const existingAromas = new Set(existingStock.map(({ aroma }) => aroma));
 
-            const updateStockPromises = parsedStock.map(({ talle, color, cantidad }) => {
-              const stockKey = `${talle}-${color}`;
-
-              if (stockSet.has(stockKey)) {
-                // ✅ Si la combinación ya existe, actualizar la cantidad
+            const updateStockPromises = parsedStock.map(({ aroma, cantidad }) => {
+              if (existingAromas.has(aroma)) {
                 return new Promise((resolve, reject) => {
-                  db.run("UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND talle = ? AND color = ?", 
-                    [cantidad, id, talle, color], function (err) {
+                  db.run("UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND aroma = ?",
+                    [cantidad, id, aroma], function (err) {
                       if (err) return reject(err);
                       resolve();
                     });
                 });
               } else {
-                // ✅ Si la combinación no existe, insertarla
                 return new Promise((resolve, reject) => {
-                  db.run("INSERT INTO stock_items (menu_item_id, talle, color, cantidad) VALUES (?, ?, ?, ?)", 
-                    [id, talle, color, cantidad], function (err) {
+                  db.run("INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)",
+                    [id, aroma, cantidad], function (err) {
                       if (err) return reject(err);
                       resolve();
                     });
@@ -355,23 +351,19 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
               }
             });
 
-            // ✅ Si algún stock tiene cantidad 0, eliminarlo
-            parsedStock.forEach(({ talle, color, cantidad }) => {
+            parsedStock.forEach(({ aroma, cantidad }) => {
               if (cantidad === 0) {
-                db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND talle = ? AND color = ?", 
-                  [id, talle, color]);
+                db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND aroma = ?", [id, aroma]);
               }
             });
 
             Promise.all(updateStockPromises)
               .then(() => {
                 db.run("COMMIT", (err) => {
-                  if (err) {
-                    return res.status(500).json({ error: err.message });
-                  }
+                  if (err) return res.status(500).json({ error: err.message });
+
                   bumpMenuVersion();
 
-                  // ✅ Si hay una nueva imagen, eliminar la anterior (excepto si son iguales)
                   if (req.file && oldImgUrl && newImgUrl !== oldImgUrl) {
                     const fullPath = path.join(__dirname, "public", oldImgUrl);
                     fs.unlink(fullPath, (err) => {
@@ -392,6 +384,7 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
     });
   });
 });
+
 
 
 baseRouter.delete('/api/menu/:id', (req, res) => {
@@ -616,7 +609,6 @@ baseRouter.get('/api/sections', (req, res) => {
   });
 });
 
-
 baseRouter.get('/api/menu/:id', (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
@@ -631,9 +623,8 @@ baseRouter.get('/api/menu/:id', (req, res) => {
       return res.status(404).json({ error: "Ítem no encontrado." });
     }
 
-    // Obtener talles y colores desde `stock_items`
     db.all(
-      `SELECT id, talle, color, cantidad 
+      `SELECT id, aroma, cantidad 
        FROM stock_items 
        WHERE menu_item_id = ? AND cantidad > 0`,
       [id],
@@ -641,32 +632,25 @@ baseRouter.get('/api/menu/:id', (req, res) => {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-    
-        // Organizar stock en estructura adecuada
-        const talles = {};
-        stock.forEach(({ id, talle, color, cantidad }) => {
-          if (!talles[talle]) {
-            talles[talle] = [];
-          }
-          talles[talle].push({
-            id, // ✅ Ahora incluimos el ID correctamente
-            color,
-            cantidad
-          });
+
+        // Agrupar aromas como clave directa
+        const aromas = {};
+        stock.forEach(({ id, aroma, cantidad }) => {
+          aromas[aroma] = { id, cantidad };
         });
-    
-        res.json({ ...item, stock: talles });
+
+        res.json({ ...item, stock: aromas });
       }
     );
-    
   });
 });
+
 baseRouter.get('/api/menu/:id/talles', (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
 
   db.all(
-    `SELECT talle, color, cantidad 
+    `SELECT aroma, cantidad 
      FROM stock_items 
      WHERE menu_item_id = ? AND cantidad > 0`,
     [id],
@@ -679,19 +663,16 @@ baseRouter.get('/api/menu/:id/talles', (req, res) => {
         return res.json({ data: {}, message: "No hay stock disponible para este producto." });
       }
 
-      // Agrupar stock por talle
-      const talles = {};
-      rows.forEach(({ talle, color, cantidad }) => {
-        if (!talles[talle]) {
-          talles[talle] = [];
-        }
-        talles[talle].push({ color, cantidad });
+      const aromas = {};
+      rows.forEach(({ aroma, cantidad }) => {
+        aromas[aroma] = cantidad;
       });
 
-      res.json({ data: talles });
+      res.json({ data: aromas });
     }
   );
 });
+
 
 // PUT: Actualizar el precio de envío
 baseRouter.put('/api/delivery', (req, res) => {
@@ -771,19 +752,18 @@ baseRouter.get('/api/delivery', (req, res) => {
   });
 });
 
-// Añadir un talle a un ítem
 baseRouter.post('/api/menu/:id/stock', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar conexión
+  const db = ensureDatabaseConnection();
   const menuItemId = req.params.id;
-  const { talle, color, cantidad } = req.body;
+  const { aroma, cantidad } = req.body;
 
-  if (!talle || !color || cantidad === undefined) {
-    return res.status(400).json({ error: "Faltan datos: talle, color o cantidad." });
+  if (!aroma || cantidad === undefined) {
+    return res.status(400).json({ error: "Faltan datos: aroma o cantidad." });
   }
 
   db.run(
-    `INSERT INTO stock_items (menu_item_id, talle, color, cantidad) VALUES (?, ?, ?, ?)`,
-    [menuItemId, talle, color, cantidad],
+    `INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)`,
+    [menuItemId, aroma, cantidad],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -796,21 +776,20 @@ baseRouter.post('/api/menu/:id/stock', (req, res) => {
 baseRouter.put("/api/stock/:id", (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
-  const { talle, color, cantidad } = req.body;
+  const { aroma, cantidad } = req.body;
 
-  if (!talle || !color || cantidad === undefined) {
-    return res.status(400).json({ error: "Faltan datos: talle, color o cantidad." });
+  if (!aroma || cantidad === undefined) {
+    return res.status(400).json({ error: "Faltan datos: aroma o cantidad." });
   }
 
   db.run(
-    "UPDATE stock_items SET talle = ?, color = ?, cantidad = ? WHERE id = ?",
-    [talle, color, cantidad, id],
+    "UPDATE stock_items SET aroma = ?, cantidad = ? WHERE id = ?",
+    [aroma, cantidad, id],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
 
-      // Si la cantidad llega a 0, eliminar la entrada de stock
       if (cantidad === 0) {
         db.run("DELETE FROM stock_items WHERE id = ?", [id]);
       }
@@ -819,6 +798,7 @@ baseRouter.put("/api/stock/:id", (req, res) => {
     }
   );
 });
+
 
 
 baseRouter.delete('/api/stock/:id', (req, res) => {
@@ -882,11 +862,9 @@ baseRouter.get('/api/orders', (req, res) => {
 
 
 baseRouter.post('/api/orders', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
-
+  const db = ensureDatabaseConnection();
   const { id, items } = req.body;
 
-  // Validación de datos obligatorios
   if (!id || !items?.length) {
     return res.status(400).json({ success: false, error: 'Invalid order data' });
   }
@@ -894,30 +872,36 @@ baseRouter.post('/api/orders', (req, res) => {
   db.serialize(() => {
     db.run('BEGIN TRANSACTION');
 
-    // Verificar si el pedido ya existe
     db.get('SELECT order_id FROM order_items WHERE order_id = ?', [id], (err, row) => {
       if (err) {
         db.run('ROLLBACK');
         return res.status(500).json({ success: false, error: err.message });
       }
+
       if (row) {
         db.run('ROLLBACK');
         return res.status(409).json({ success: false, error: 'Order already exists' });
       }
 
-      // Preparar la consulta para insertar los items del pedido
       const stmt = db.prepare(`
         INSERT INTO order_items 
-        (order_id, product_id, talle, color, quantity, price_at_time, status, details) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        (order_id, product_id, aroma, quantity, price_at_time, status, details) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)`
       );
 
       try {
         items.forEach(item => {
-          const talle = item.talle || null; // Permitir valores `NULL`
-          const color = item.color || null; // Permitir valores `NULL`
-          
-          stmt.run([id, item.product_id, talle, color, item.quantity, item.price_at_time, 'pending', item.details]);
+          const aroma = item.aroma || null;
+
+          stmt.run([
+            id,
+            item.product_id,
+            aroma,
+            item.quantity,
+            item.price_at_time,
+            'pending',
+            item.details
+          ]);
         });
 
         stmt.finalize();
@@ -937,23 +921,22 @@ baseRouter.post('/api/orders', (req, res) => {
   });
 });
 
-baseRouter.put('/api/orders/:id/status', async (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
 
+baseRouter.put('/api/orders/:id/status', async (req, res) => {
+  const db = ensureDatabaseConnection();
   const { id } = req.params;
 
   try {
     await new Promise((resolve, reject) => db.run('BEGIN TRANSACTION', (err) => (err ? reject(err) : resolve())));
 
-    // Paso 1: Verificar stock disponible en `stock_items`
+    // Paso 1: Verificar stock disponible en `stock_items` por aroma
     const stockCheck = await new Promise((resolve, reject) => {
       db.all(`
-        SELECT oi.product_id, oi.talle, oi.color, oi.quantity, si.cantidad
+        SELECT oi.product_id, oi.aroma, oi.quantity, si.cantidad
         FROM order_items oi
         LEFT JOIN stock_items si 
           ON oi.product_id = si.menu_item_id 
-          AND oi.talle = si.talle 
-          AND oi.color = si.color
+          AND oi.aroma = si.aroma
         WHERE oi.order_id = ? AND oi.status = 'pending'
       `, [id], (err, rows) => {
         if (err) reject(err);
@@ -961,18 +944,18 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
       });
     });
 
-    // Paso 2: Restar stock por talle y color
+    // Paso 2: Restar stock
     for (const item of stockCheck) {
       if (item.cantidad < item.quantity) {
-        throw new Error(`Stock insuficiente para ${item.talle} - ${item.color}`);
+        throw new Error(`Stock insuficiente para aroma "${item.aroma}"`);
       }
 
       await new Promise((resolve, reject) => {
         db.run(`
           UPDATE stock_items 
           SET cantidad = cantidad - ?
-          WHERE menu_item_id = ? AND talle = ? AND color = ?`,
-          [item.quantity, item.product_id, item.talle, item.color],
+          WHERE menu_item_id = ? AND aroma = ?`,
+          [item.quantity, item.product_id, item.aroma],
           (err) => (err ? reject(err) : resolve())
         );
       });
@@ -987,7 +970,7 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
       );
     });
 
-    // Paso 4: Ocultar talles y productos sin stock
+    // Paso 4: Ocultar productos sin stock
     const stockCheckProducts = await new Promise((resolve, reject) => {
       db.all(`
         SELECT menu_item_id, COUNT(*) AS totalStock 
@@ -1009,7 +992,7 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
       }
     }
 
-    // Paso 5: Cambiar estado del pedido a "paid"
+    // Paso 5: Marcar pedido como pagado
     await new Promise((resolve, reject) => {
       db.run('UPDATE order_items SET status = ? WHERE order_id = ?', ['paid', id], (err) =>
         err ? reject(err) : resolve()
@@ -1025,6 +1008,7 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 import os from 'os';

@@ -641,66 +641,47 @@ section.insertBefore(newItem, afterTitle || null);
   
 
 
-  function loadTallesForItem(itemId) {
+  function loadAromasForItem(itemId) {
     fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${itemId}/talles`)
       .then(response => response.json())
-      .then(tallesData => {
-        const talleSelect = document.querySelector(`.menu-item[data-id="${itemId}"] .talle-select`);
-        const colorSelect = document.querySelector(`.menu-item[data-id="${itemId}"] .color-select`);
-        if (!talleSelect) return;
+      .then(aromaData => {
+        const aromaSelect = document.querySelector(`.menu-item[data-id="${itemId}"] .aroma-select`);
+        if (!aromaSelect || !aromaData.data) return;
   
-        talleSelect.innerHTML = '<option value="" disabled selected>Talle</option>';
-        if (colorSelect) {
-          colorSelect.innerHTML = '<option value="" disabled selected>Color</option>';
-        }
+        aromaSelect.innerHTML = '<option value="" disabled selected>Aroma</option>';
   
-        const stockMap = tallesData.data || {};
-        Object.keys(stockMap).forEach(talle => {
-          const tieneStock = stockMap[talle].some(item => item.cantidad > 0);
-          if (tieneStock) {
+        Object.entries(aromaData.data).forEach(([aroma, cantidad]) => {
+          if (cantidad > 0) {
             const option = document.createElement('option');
-            option.value = talle;
-            option.textContent = talle;
-            talleSelect.appendChild(option);
+            option.value = aroma;
+            option.textContent = `${aroma} (${cantidad})`;
+            aromaSelect.appendChild(option);
           }
         });
-  
-        // Actualizar colores al cambiar talle
-        talleSelect.addEventListener('change', function () {
-          const seleccionado = this.value;
-          if (!colorSelect || !stockMap[seleccionado]) return;
-  
-          colorSelect.innerHTML = '<option value="" disabled selected>Color</option>';
-          stockMap[seleccionado].forEach(({ color }) => {
-            const opt = document.createElement('option');
-            opt.value = color;
-            opt.textContent = color;
-            colorSelect.appendChild(opt);
-          });
-        });
       })
-      .catch(err => console.error('Error cargando talles:', err));
+      .catch(err => console.error('Error cargando aromas:', err));
   }
+  
   
 
   function createMenuItem(item) {
     const imageUrl = item.img_url || '';
     let imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
-
+  
     const priceAndButton = `
         <div class="price-button-container">
           <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
         </div>
     `;
-
+  
     const contenedorItems = document.createElement('span');
     contenedorItems.className = 'contenedor-items';
-
+  
     const newItem = document.createElement('div');
     newItem.className = 'menu-item';
     newItem.dataset.id = item.id;
-
+  
     newItem.innerHTML = `
         <div class="item-header">${imgTag}</div>
         <div class="item-content">
@@ -709,81 +690,44 @@ section.insertBefore(newItem, afterTitle || null);
             <p class="item-description">${item.descripcion}</p>
         </div>
     `;
-
+  
     const editButton = document.createElement('button');
     editButton.classList.add('edit-button', 'auth-required');
     editButton.textContent = 'Editar';
     newItem.appendChild(editButton);
-
-    const talleWrapper = document.createElement('div');
-    talleWrapper.className = 'talle-wrapper';
-
-    const talleDropdown = document.createElement('select');
-    talleDropdown.className = 'talle-select';
-    talleDropdown.innerHTML = `<option value="" disabled selected>Talle</option>`;
-
-    const colorDropdown = document.createElement('select');
-    colorDropdown.className = 'color-select';
-    colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
-    colorDropdown.addEventListener('mousedown', function (e) {
-      if (!talleDropdown.value) {
-        e.preventDefault(); // evita que se abra el select
-        Swal.fire({
-          icon: 'info',
-          title: 'Primero elegí un talle',
-          text: 'Debes seleccionar un talle antes de elegir un color.',
-          confirmButtonText: 'Aceptar',
-          customClass: { popup: 'mi-alerta-personalizada' }
-        });
-      }
-    });
-    
-    // Mapeo de stock para almacenar colores disponibles por talle
-    let stockMap = {};
-
+  
+    const aromaWrapper = document.createElement('div');
+    aromaWrapper.className = 'aroma-wrapper';
+  
+    const aromaDropdown = document.createElement('select');
+    aromaDropdown.className = 'aroma-select';
+    aromaDropdown.innerHTML = `<option value="" disabled selected>Elegí aroma</option>`;
+  
     fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${item.id}/talles`)
       .then(response => response.json())
       .then(stockData => {
-        if (stockData.data) {
-          stockMap = stockData.data;
-          Object.keys(stockMap).forEach(talle => {
-            if (stockMap[talle].length > 0) {
-              const option = document.createElement('option');
-              option.value = talle;
-              option.textContent = talle;
-              talleDropdown.appendChild(option);
-            }
-          });
-
-          // Cuando cambia el talle, actualizar los colores disponibles
-          talleDropdown.addEventListener('change', function () {
-            const selectedTalle = talleDropdown.value;
-            colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
-
-            if (stockMap[selectedTalle]) {
-              stockMap[selectedTalle].forEach(({ color }) => {
-                const colorOption = document.createElement('option');
-                colorOption.value = color;
-                colorOption.textContent = color;
-                colorDropdown.appendChild(colorOption);
-              });
-            }
-          });
-
-          talleWrapper.appendChild(talleDropdown);
-          talleWrapper.appendChild(colorDropdown);
-          newItem.querySelector('.item-content').appendChild(talleWrapper);
-        }
+        const stock = stockData.data || {};
+        Object.entries(stock).forEach(([aroma, cantidad]) => {
+          if (cantidad > 0) {
+            const option = document.createElement('option');
+            option.value = aroma;
+            option.textContent = `${aroma} (${cantidad})`;
+            aromaDropdown.appendChild(option);
+          }
+        });
+  
+        aromaWrapper.appendChild(aromaDropdown);
+        newItem.querySelector('.item-content').appendChild(aromaWrapper);
       })
       .catch(err => {
         console.error('Error fetching stock data:', err);
       });
-
+  
     contenedorItems.appendChild(newItem);
-    
+  
     return contenedorItems;
   }
-
+  
 
   // Crear el overlay si no existe
   let overlay = document.querySelector('.overlay');
@@ -835,12 +779,12 @@ section.insertBefore(newItem, afterTitle || null);
     const orderId = `P${orderNumber}`;
     const deliveryMethod = document.querySelector('input[name="delivery-method"]:checked')?.value || 'pickup';
     const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'No especificado';
-
+  
     let orderDetails = ` *Hola, quiero realizar mi pedido.*\n\n`;
     orderDetails += `🛒 *Nro:* *${orderId}*\n`;
     orderDetails += `📅 ${formattedDate}\n`;
     orderDetails += `🛵 *Envío:* ${deliveryMethod === 'delivery' ? 'Envío a domicilio' : 'Retiro en local'}\n`;
-
+  
     let address = '';
     if (deliveryMethod === 'delivery') {
       address = document.getElementById('delivery-address')?.value.trim();
@@ -850,44 +794,43 @@ section.insertBefore(newItem, afterTitle || null);
       }
       orderDetails += `🏠 *Dirección:* ${address}\n`;
     }
-
+  
     orderDetails += `💳 *Pago:* ${paymentMethod}\n\n`;
     orderDetails += `*Productos:*\n`;
-
+  
     let total = 0;
     const items = Object.entries(cart).map(([key, product]) => {
       if (!product.quantity || !product.price) {
         console.error("Producto inválido:", product);
         return null;
       }
-
-      // Extraer `product_id`, `talle`, `color` desde la clave '18-4-verde'
-      const [productId, talle, color] = key.split('-');
-
+  
+      // Clave: '18-lavanda'
+      const [productId, aroma] = key.split('-');
+  
       total += product.price * product.quantity;
-      const talleText = talle ? `Talle: *${talle}*` : 'Talle: *N/A*';
-      const colorText = color ? `Color: *${color}*` : 'Color: *N/A*';
-
-      orderDetails += `- 👕 *${product.name}* (${talleText}, ${colorText}) x${product.quantity} - *$${formatPrice(product.price * product.quantity)}*\n`;
-
+      const aromaText = aroma ? `Aroma: *${aroma}*` : 'Aroma: *N/A*';
+  
+      orderDetails += `- 🧴 *${product.name}* (${aromaText}) x${product.quantity} - *$${formatPrice(product.price * product.quantity)}*\n`;
+  
       return {
         product_id: parseInt(productId),
-        talle: talle || null, // Permitir valores `NULL`
-        color: color || null, // Permitir valores `NULL`
+        aroma: aroma || null,
         quantity: product.quantity,
         price_at_time: product.price,
         status: "pending",
-        details: orderDetails // ✅ Se pasa el detalle a cada item
+        details: orderDetails
       };
     }).filter(item => item !== null);
-
+  
     updateCartTotal().then((totalUpdated) => {
       total = totalUpdated;
       orderDetails += `\n💲 *Total:* *$${formatPrice(total.toFixed(2))}*\n`;
-
+  
       sendOrder(orderId, items, orderDetails, deliveryMethod, paymentMethod, address, total);
     });
   }
+  
 
   function sendOrder(orderId, items, orderDetails, deliveryMethod, paymentMethod, address, total) {
     const orderData = {
@@ -947,9 +890,9 @@ section.insertBefore(newItem, afterTitle || null);
     const cart = JSON.parse(localStorage.getItem('cart')) || {};
     let cartContent = '';
     let total = 0;
-
+  
     const formattedDate = formatDateArgentina(new Date());
-
+  
     if (Object.keys(cart).length === 0) {
       cartContent = '<p>Tu carrito está vacío</p>';
     } else {
@@ -957,35 +900,34 @@ section.insertBefore(newItem, afterTitle || null);
         .then(response => response.json())
         .then(data => {
           const deliveryPrice = data.price || 0;
-
+  
           cartContent += `<p class="fecha">${formattedDate}</p>`;
-
+  
           const sections = {};
-          for (const productId in cart) {
-            const product = cart[productId];
+          for (const productKey in cart) {
+            const product = cart[productKey];
             const sectionName = product.section || "Otros";
-
+  
             if (!sections[sectionName]) {
               sections[sectionName] = [];
             }
-
+  
             sections[sectionName].push(product);
             total += product.totalPrice || 0;
           }
-
+  
           for (const sectionName in sections) {
             const formattedSectionName = sectionName.charAt(0).toUpperCase() + sectionName.slice(1).toLowerCase();
             cartContent += `<h3 class="nombre-seccion">${formattedSectionName}</h3>`;
-
+  
             sections[sectionName].forEach(product => {
-              const productTalle = product.talle ? `T: ${product.talle}` : '';
-              const productColor = product.color && product.color !== 'sin-color' ? `, C: ${product.color}` : '';
+              const aromaText = product.aroma ? `Aroma: ${product.aroma}` : '';
               const productTotalPrice = formatPrice((product.totalPrice || 0).toFixed(2));
-
+  
               cartContent += `
-                <div class="cart-item" data-id="${product.id}" data-talle="${product.talle || 'sin-talle'}" data-color="${product.color || 'sin-color'}">
+                <div class="cart-item" data-id="${product.id}" data-aroma="${product.aroma || 'sin-aroma'}">
                   <span class="container-uno"> 
-                    <span class="detalles"><strong>${product.name} (${productTalle}${productColor})</strong></span> 
+                    <span class="detalles"><strong>${product.name} (${aromaText})</strong></span> 
                     <span>
                       <button class="quantity-btn" data-action="decrease">-</button>
                       <input type="number" value="${product.quantity}" min="1" class="quantity-input" readonly>
@@ -1000,185 +942,174 @@ section.insertBefore(newItem, afterTitle || null);
               `;
             });
           }
-
+  
           const cartPopup = document.createElement('div');
           cartPopup.classList.add('cart-popup');
           cartPopup.innerHTML = `
             <div id="popup-container" class="cart-popup-content">
-                <span class="close"><button class="close-cart-btn">X</button></span>
-                <span class="contenedor-uno">
-                    <h2>Pedido</h2>
-                    ${cartContent}
-                </span>
-                <span class="contenedor-dos">
-                  <div class="delivery-options">
-                    <h3>Entrega</h3>
-                    <label class="contenedor radio">
-                      Retiro en el local <input type="radio" name="delivery-method" value="pickup" checked> 
-                    </label>
-                    <a href="https://maps.app.goo.gl/iJTstYQEXCi1fZ2V7"><p>Tucuman 232</p></a>
-                    <label class="contenedor radio">
-                      Envío a domicilio <input type="radio" name="delivery-method" value="delivery"> 
-                    </label>
-                    <div id="address-container" style="display: none;">
-                      <input type="text" id="delivery-address" placeholder="Ingrese dirección">
-                    </div>
+              <span class="close"><button class="close-cart-btn">X</button></span>
+              <span class="contenedor-uno">
+                <h2>Pedido</h2>
+                ${cartContent}
+              </span>
+              <span class="contenedor-dos">
+                <div class="delivery-options">
+                  <h3>Entrega</h3>
+                  <label class="contenedor radio">
+                    Retiro en el local <input type="radio" name="delivery-method" value="pickup" checked> 
+                  </label>
+                  <a href="https://maps.app.goo.gl/iJTstYQEXCi1fZ2V7"><p>Tucuman 232</p></a>
+                  <label class="contenedor radio">
+                    Envío a domicilio <input type="radio" name="delivery-method" value="delivery"> 
+                  </label>
+                  <div id="address-container" style="display: none;">
+                    <input type="text" id="delivery-address" placeholder="Ingrese dirección">
                   </div>
-                  <p><strong>Total: $<span id="ca-total">${formatPrice(total)}</span></strong></p>
-                </span>
-                <div class="payment-options">
-                  <h4>Pago</h4>
-                  <label>Transferencia<input type="radio" name="payment-method" value="Transferencia"></label><br>
-                  <label>Efectivo<input type="radio" name="payment-method" value="Efectivo"></label><br>
-                  <label>Tarjeta<input type="radio" name="payment-method" value="Tarjeta"></label>
                 </div>
-                <span class="container-mp">
-                    <button id="pay-with-mp" class="pay-btn">
-                        <img class="icono-mp" src="img/logo-mercado-pago-icone-1024.png"> Pagar con mercado pago
-                    </button>
+                <p><strong>Total: $<span id="ca-total">${formatPrice(total)}</span></strong></p>
+              </span>
+              <div class="payment-options">
+                <h4>Pago</h4>
+                <label>Transferencia<input type="radio" name="payment-method" value="Transferencia"></label><br>
+                <label>Efectivo<input type="radio" name="payment-method" value="Efectivo"></label><br>
+                <label>Tarjeta<input type="radio" name="payment-method" value="Tarjeta"></label>
+              </div>
+              <span class="container-mp">
+                <button id="pay-with-mp" class="pay-btn">
+                  <img class="icono-mp" src="img/logo-mercado-pago-icone-1024.png"> Pagar con mercado pago
+                </button>
+              </span>
+              <div class="btn-popup">
+                <button class="continue-shopping-btn">Seguir Comprando</button> 
+                <span class="containe">
+                  <button class="confirm-order-btn">
+                    <img class="icono-wpp" src="img/wpp.png"> Confirmar
+                  </button>
                 </span>
-                <div class="btn-popup">
-                    <button class="continue-shopping-btn">Seguir Comprando</button> 
-                    <span class="containe">
-                        <button class="confirm-order-btn">
-                            <img class="icono-wpp" src="img/wpp.png"> Confirmar
-                        </button>
-                    </span>
-                </div>
-<span class="vaciar-carrito-btn" id="clear-cart-button">Vaciar pedido</span>
-
-</p>
+              </div>
+              <span class="vaciar-carrito-btn" id="clear-cart-button">Vaciar pedido</span>
             </div>
-        `;
+          `;
+  
           document.body.appendChild(cartPopup);
-
+  
           document.getElementById('pay-with-mp').addEventListener('click', function () {
             const total = parseFloat(document.getElementById('cart-total').textContent);
             handlePayment(total);
           });
-
+  
           document.querySelector('.close-cart-btn').addEventListener('click', function () {
             document.body.removeChild(cartPopup);
             overlay.style.display = 'none';
             document.body.style.overflow = '';
           });
-
+  
           document.querySelector('.continue-shopping-btn').addEventListener('click', function () {
             document.body.removeChild(cartPopup);
             overlay.style.display = 'none';
             document.body.style.overflow = '';
           });
-
+  
           document.querySelector('.confirm-order-btn').addEventListener('click', function () {
             confirmOrder(formattedDate);
           });
-
+  
           document.querySelectorAll('.quantity-btn').forEach(button => {
             button.addEventListener('click', handleQuantityChange);
           });
-
+  
           document.querySelectorAll('.remove-btn').forEach(button => {
             button.addEventListener('click', handleRemoveProduct);
           });
-
+  
           document.querySelectorAll('input[name="delivery-method"]').forEach(radio => {
             radio.addEventListener('change', function () {
               const addressContainer = document.getElementById('address-container');
               addressContainer.style.display = this.value === 'delivery' ? 'block' : 'none';
-
+  
               updateCartTotal().then((total) => {
                 console.log(`Total actualizado con método de entrega: $${total}`);
               });
             });
           });
+  
           document.getElementById('clear-cart-button').addEventListener('click', () => {
             localStorage.removeItem('cart');
             document.body.removeChild(document.querySelector('.cart-popup'));
             overlay.style.display = 'none';
             document.body.style.overflow = '';
           });
-
         });
     }
   }
-
+  
 
   function handleQuantityChange(event) {
     const action = event.target.dataset.action;
     const cartItem = event.target.closest('.cart-item');
     const productId = cartItem.dataset.id;
-    const talle = cartItem.dataset.talle || 'sin-talle';
-    const color = cartItem.dataset.color || 'sin-color';
-    const productKey = `${productId}-${talle}-${color}`;
-
+    const aroma = cartItem.dataset.aroma || 'sin-aroma';
+    const productKey = `${productId}-${aroma}`;
+  
     let cart = JSON.parse(localStorage.getItem('cart')) || {};
     const product = cart[productKey];
-
+  
     if (!product) return;
-
+  
     if (action === 'increase') {
       product.quantity += 1;
     } else if (action === 'decrease') {
       if (product.quantity > 1) {
         product.quantity -= 1;
       } else {
-        // Eliminar el producto si la cantidad llega a 0
         delete cart[productKey];
         cartItem.remove();
       }
     }
-
+  
     if (cart[productKey]) {
       product.totalPrice = product.price * product.quantity;
       cartItem.querySelector('.quantity-input').value = product.quantity;
       cartItem.querySelector('.product-total-price').textContent = `$${product.totalPrice.toFixed(2)}`;
     }
-
+  
     localStorage.setItem('cart', JSON.stringify(cart));
-
+  
     updateCartTotal().then((total) => {
       document.getElementById('ca-total').textContent = `$${total.toFixed(2)}`;
     });
   }
-
-
+  
   function handleRemoveProduct(event) {
     const cartItem = event.target.closest('.cart-item');
     if (!cartItem) return;
-
-    // Obtener datos del producto
+  
     const productId = cartItem.dataset.id;
-    const talle = cartItem.dataset.talle || 'sin-talle';
-    const color = cartItem.dataset.color || 'sin-color';
-    const productKey = `${productId}-${talle}-${color}`;
-
-    console.log('Intentando eliminar producto:', { productId, talle, color, productKey });
-
-    // Obtener carrito y validar la existencia del producto
+    const aroma = cartItem.dataset.aroma || 'sin-aroma';
+    const productKey = `${productId}-${aroma}`;
+  
+    console.log('Intentando eliminar producto:', { productId, aroma, productKey });
+  
     let cart = JSON.parse(localStorage.getItem('cart')) || {};
     if (cart[productKey]) {
-      // Eliminar producto del carrito
       delete cart[productKey];
       localStorage.setItem('cart', JSON.stringify(cart));
-
-      // Remover del DOM
       cartItem.remove();
       console.log(`Producto con clave ${productKey} eliminado del carrito.`);
     } else {
       console.warn(`No se pudo encontrar el producto con la clave: ${productKey}`);
     }
-
-    // Actualizar el total del carrito
+  
     updateCartTotal().then((total) => {
       document.getElementById('ca-total').textContent = `$${total.toFixed(2)}`;
       console.log(`Nuevo total del carrito: $${total}`);
-
-      // Si el carrito queda vacío, mostrar mensaje
+  
       if (Object.keys(cart).length === 0) {
         document.querySelector('.contenedor-uno').innerHTML = '<p>Tu carrito está vacío</p>';
       }
     });
   }
+  
 
 
 
@@ -1235,50 +1166,33 @@ section.insertBefore(newItem, afterTitle || null);
   function addToCart(productId, productName, productPrice) {
     let cart = JSON.parse(localStorage.getItem('cart')) || {};
     const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
-
+  
     if (!productElement) {
       console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
       return;
     }
-
-    // Obtener elementos de selección de talle y color
-    const talleElement = productElement.querySelector('.talle-select');
-    const colorElement = productElement.querySelector('.color-select');
-
-    // Validar selección de talle si hay opciones disponibles
-    if (talleElement && talleElement.options.length > 1 && !talleElement.value) {
+  
+    const aromaElement = productElement.querySelector('.aroma-select');
+  
+    if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
       Swal.fire({
         icon: 'warning',
-        title: 'Selecciona un talle',
-        text: 'Debes elegir un talle antes de continuar.',
+        title: 'Selecciona un aroma',
+        text: 'Debes elegir un aroma antes de continuar.',
         confirmButtonText: 'Aceptar',
         customClass: { popup: 'mi-alerta-personalizada' }
       });
       return;
     }
-
-    // Validar selección de color si hay opciones disponibles
-    if (colorElement && colorElement.options.length > 1 && !colorElement.value) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Selecciona un color',
-        text: 'Debes elegir un color antes de continuar.',
-        confirmButtonText: 'Aceptar',
-        customClass: { popup: 'mi-alerta-personalizada' }
-      });
-      return;
-    }
-
-    // Obtener valores seleccionados o asignar valores predeterminados
-    const selectedTalle = talleElement?.value || 'sin-talle';
-    const selectedColor = colorElement?.value || 'sin-color';
-
+  
+    const selectedAroma = aromaElement?.value || 'sin-aroma';
+  
     const menuSection = productElement.closest('.menu-section');
     const sectionName = menuSection ? menuSection.getAttribute('data-type') : '';
-
+  
     let mainTitle = '';
     let current = productElement.previousElementSibling;
-
+  
     if (productElement.querySelector('.item-title.porciones-title')) {
       while (current) {
         const titleElement = current.querySelector('.item-title:not(.porciones-title)');
@@ -1289,10 +1203,10 @@ section.insertBefore(newItem, afterTitle || null);
         current = current.previousElementSibling;
       }
     }
-
+  
     const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
-    const productKey = `${productId}-${selectedTalle}-${selectedColor}`;
-
+    const productKey = `${productId}-${selectedAroma}`;
+  
     if (cart[productKey]) {
       cart[productKey].quantity += 1;
       cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
@@ -1304,16 +1218,17 @@ section.insertBefore(newItem, afterTitle || null);
         price: productPrice,
         quantity: 1,
         totalPrice: productPrice,
-        talle: selectedTalle,
-        color: selectedColor
+        aroma: selectedAroma
       };
       console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
     }
-
+  
     localStorage.setItem('cart', JSON.stringify(cart));
     console.log(`Carrito actualizado en localStorage:`, cart);
     showToast(finalProductName);
   }
+  
+  
 
 
   // Asignar el evento `click` una sola vez para evitar duplicados
@@ -1408,57 +1323,48 @@ section.insertBefore(newItem, afterTitle || null);
 
         // ✅ Inicializar stock con la estructura correcta desde el backend
         let stockArray = itemData.stock
-          ? Object.entries(itemData.stock).flatMap(([talle, colores]) =>
-            colores.map(({ id, color, cantidad }) => ({ id, talle, color, cantidad }))
-          )
-          : [];
+        ? Object.entries(itemData.stock).map(([aroma, { id, cantidad }]) => ({ id, aroma, cantidad }))
+        : [];
+      
 
         // ✅ Función mejorada para renderizar y asignar eventos al stock
         function renderStockList() {
           const stockList = document.getElementById('stock-list');
-
+        
           // Renderizar lista de stock desde stockArray
           stockList.innerHTML = stockArray
             .map(
-              ({ id, talle, color, cantidad }) => `
-      <li data-id="${id}" data-talle="${talle}" data-color="${color}" data-cantidad="${cantidad}">
-        <span>T: ${talle} - ${color} - Cant: ${cantidad}</span>
-        <button class="edit-stock-btn" data-id="${id}">✏️</button>
-        <button class="delete-stock-btn" data-id="${id}">🗑️</button>
-      </li>
-    `
+              ({ id, aroma, cantidad }) => `
+                <li data-id="${id}" data-aroma="${aroma}" data-cantidad="${cantidad}">
+                  <span>Aroma: ${aroma} - Cant: ${cantidad}</span>
+                  <button class="edit-stock-btn" data-id="${id}">✏️</button>
+                  <button class="delete-stock-btn" data-id="${id}">🗑️</button>
+                </li>
+              `
             )
             .join('');
-
-          // ✅ Volver a asignar eventos después de renderizar
+        
+          // ✅ Editar stock
           stockList.querySelectorAll('.edit-stock-btn').forEach((btn) => {
             btn.addEventListener('click', (event) => {
               const li = event.target.closest('li');
-              document.getElementById('new-talle').value = li.dataset.talle;
-              document.getElementById('new-color').value = li.dataset.color;
+              document.getElementById('new-aroma').value = li.dataset.aroma;
               document.getElementById('new-cantidad').value = li.dataset.cantidad;
-          
-              // ⚠️ Remover este bloque, ya no eliminamos directamente
-              // stockArray = stockArray.filter((item) => item.id !== parseInt(li.dataset.id, 10));
-              // li.remove();
-          
-              // ✅ En lugar de eliminar, solo marcamos para edición
               document.getElementById('add-stock-btn').dataset.editingId = li.dataset.id;
             });
           });
-          
-
+        
+          // ✅ Eliminar stock
           stockList.querySelectorAll('.delete-stock-btn').forEach((btn) => {
             btn.addEventListener('click', (event) => {
               const li = event.target.closest('li');
               const stockId = parseInt(li.dataset.id, 10);
-
-              // ✅ Eliminar del stockArray antes de eliminar del DOM
               stockArray = stockArray.filter((item) => item.id !== stockId);
-              li.remove(); // Eliminar visualmente sin recargar
+              li.remove();
             });
           });
         }
+        
 
         const originalTipo = itemType;
         const originalGroup = currentParentGroup;
@@ -1484,10 +1390,9 @@ section.insertBefore(newItem, afterTitle || null);
               <ul id="stock-list"></ul>
               <div class="container-stock">
                 <span class="container-stockuno">
-                  <input type="text" id="new-talle" class="swal2-input" placeholder="Talle" />
-                  <input type="number" id="new-cantidad" class="swal2-input" placeholder="Cantidad" min="1" />
-                </span>
-                <input type="text" id="new-color" class="swal2-input" placeholder="Color" />
+<input type="text" id="new-aroma" class="swal2-input" placeholder="Aroma" />
+<input type="number" id="new-cantidad" class="swal2-input" placeholder="Cantidad" min="1" />
+
                 <button id="add-stock-btn">Añadir Stock</button>
               </div>
             </div>
@@ -1513,32 +1418,32 @@ section.insertBefore(newItem, afterTitle || null);
               });
             }
             document.getElementById('add-stock-btn').addEventListener('click', function () {
-              const talle = document.getElementById('new-talle').value.trim();
-              const color = document.getElementById('new-color').value.trim();
+              const aroma = document.getElementById('new-aroma').value.trim();
               const cantidad = parseInt(document.getElementById('new-cantidad').value.trim(), 10);
               const editingId = this.dataset.editingId;
-            
-              if (talle && color && !isNaN(cantidad) && cantidad >= 0) {
+              
+              if (aroma && !isNaN(cantidad) && cantidad >= 0) {
                 if (editingId) {
                   const index = stockArray.findIndex((item) => item.id === parseInt(editingId, 10));
                   if (index !== -1) {
-                    stockArray[index] = { id: parseInt(editingId, 10), talle, color, cantidad };
+                    stockArray[index] = { id: parseInt(editingId, 10), aroma, cantidad };
                   }
                 } else {
-                  stockArray.push({ id: Date.now(), talle, color, cantidad });
+                  stockArray.push({ id: Date.now(), aroma, cantidad });
                 }
-            
-                // Limpiar
-                document.getElementById('new-talle').value = '';
-                document.getElementById('new-color').value = '';
+              
+                // Limpiar campos
+                document.getElementById('new-aroma').value = '';
                 document.getElementById('new-cantidad').value = '';
                 this.removeAttribute('data-editing-id');
-            
-                // 🔁 Ahora sí actualiza
+              
+                // 🔁 Render actualizado
                 renderStockList();
               } else {
                 Swal.fire('Error', 'Por favor, ingresa valores válidos.', 'error');
               }
+              
+              
             });
             
             
@@ -1610,7 +1515,7 @@ section.insertBefore(newItem, afterTitle || null);
                       window.location.reload();
                     });
                   } else {
-                    loadTallesForItem(itemId);
+                    loadAromasForItem(itemId);
                     const updatedImgUrl = data.img_url || img_url;
                     updateMenuItemDOM({ id: itemId, nombre, precio, descripcion, img_url: updatedImgUrl });
                   
@@ -1652,16 +1557,7 @@ section.insertBefore(newItem, afterTitle || null);
     }
 
 
-    // ✅ Editar stock correctamente
-    if (event.target.classList.contains('edit-stock-btn')) {
-      const li = event.target.closest('li');
-      document.getElementById('new-talle').value = li.dataset.talle;
-      document.getElementById('new-color').value = li.dataset.color;
-      document.getElementById('new-cantidad').value = li.dataset.cantidad;
-
-      // ⚡️ Ya no eliminamos el stock existente, solo guardamos el ID para editarlo
-      document.getElementById('add-stock-btn').dataset.editingId = li.dataset.id;
-    }
+   
 
   });
 
@@ -1760,9 +1656,7 @@ section.insertBefore(newItem, afterTitle || null);
                 <select id="swal-input3" class="swal2-input">
     <option value="" disabled selected>Seleccionar Categoría</option>
 </select>
-<div id="new-section-input" style="display:none; margin-top: 10px;">
-    <input id="swal-new-section" class="swal2-input" placeholder="Nombre de la nueva Categoría" />
-</div>
+
 
                   <div id="new-section-input" style="display:none; margin-top: 10px;">
                       <input id="swal-new-section" class="swal2-input" placeholder="Nombre de la nueva Categoría" />
@@ -1775,10 +1669,9 @@ section.insertBefore(newItem, afterTitle || null);
                         <ul id="stock-list"></ul>
                         <div class="container-stock">
                           <span class="container-stockuno">
-                            <input type="text" id="new-talle" class="swal2-input" placeholder="Talle" />
-                            <input type="number" id="new-cantidad" class="swal2-input" placeholder="Cantidad" min="0" /> 
-                            </span>
-                            <input type="text" id="new-color" class="swal2-input" placeholder="Color" />
+<input type="text" id="new-aroma" class="swal2-input" placeholder="Aroma" />
+<input type="number" id="new-cantidad" class="swal2-input" placeholder="Cantidad" min="0" />
+
                           <button id="add-stock-btn">Añadir Stock</button>
                       </div>
                   </div>
@@ -1820,12 +1713,11 @@ section.insertBefore(newItem, afterTitle || null);
               const compressedFile = new File([compressedImage], 'imagen.webp', { type: 'image/webp' });
               formData.append('imagen', compressedFile);
             }
-
             const stock = Array.from(document.querySelectorAll('#stock-list li')).map(li => ({
-              talle: li.dataset.talle,
-              color: li.dataset.color,
+              aroma: li.dataset.aroma,
               cantidad: parseInt(li.dataset.cantidad, 10)
-            })).filter(item => item.talle && item.color && !isNaN(item.cantidad) && item.cantidad >= 0);
+            })).filter(item => item.aroma && !isNaN(item.cantidad) && item.cantidad >= 0);
+            
 
             formData.append('stock', JSON.stringify(stock));
             formData.append('subelement', document.getElementById('swal-subelement-checkbox').checked);
@@ -1918,35 +1810,30 @@ localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
         });
 
         document.getElementById('add-stock-btn').addEventListener('click', () => {
-          const talle = document.getElementById('new-talle').value.trim();
-          const color = document.getElementById('new-color').value.trim();
+          const aroma = document.getElementById('new-aroma').value.trim();
           const cantidad = parseInt(document.getElementById('new-cantidad').value.trim(), 10);
-
-          if (talle && color && !isNaN(cantidad) && cantidad >= 0) {
+          if (aroma && !isNaN(cantidad)) {
             const li = document.createElement('li');
-            li.dataset.talle = talle;
-            li.dataset.color = color;
+            li.dataset.aroma = aroma;
             li.dataset.cantidad = cantidad;
             li.innerHTML = `
-                      T: ${talle} - ${color} - Cant: ${cantidad}
-                     <button class="edit-stock-btn">✏️</button>
-                        <button class="delete-stock-btn">🗑️</button>
-                  `;
+              Aroma: ${aroma} - Cant: ${cantidad}
+              <button class="edit-stock-btn">✏️</button>
+              <button class="delete-stock-btn">🗑️</button>
+            `;
             document.getElementById('stock-list').appendChild(li);
-
+          
             li.querySelector('.delete-stock-btn').addEventListener('click', () => li.remove());
             li.querySelector('.edit-stock-btn').addEventListener('click', () => {
-              document.getElementById('new-talle').value = li.dataset.talle;
-              document.getElementById('new-color').value = li.dataset.color;
+              document.getElementById('new-aroma').value = li.dataset.aroma;
               document.getElementById('new-cantidad').value = li.dataset.cantidad;
               li.remove();
             });
-
-            document.getElementById('new-talle').value = '';
-            document.getElementById('new-color').value = '';
+          
+            document.getElementById('new-aroma').value = '';
             document.getElementById('new-cantidad').value = '';
           } else {
-            alert('Por favor, ingresa un talle, color y cantidad válida.');
+            alert('Por favor, ingresa un aroma y una cantidad válida.');
           }
         });
       });
