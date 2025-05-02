@@ -671,6 +671,8 @@ section.insertBefore(newItem, afterTitle || null);
     const priceAndButton = `
         <div class="price-button-container">
           <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
+          ${item.precio_mayorista ? `<div class="item-price-mayorista">Mayorista: $${formatPrice(item.precio_mayorista)}</div>` : ''}
+
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
         </div>
     `;
@@ -1380,6 +1382,7 @@ section.insertBefore(newItem, afterTitle || null);
           html: `
             <input id="swal-input1" class="swal2-input" placeholder="Nombre" value="${itemTitle}" />
             <input id="swal-input2" class="swal2-input" placeholder="Precio" value="${itemPrice}" />
+           <input id="swal-input-precio-mayorista" class="swal2-input" placeholder="Precio Mayorista" value="${itemData.precio_mayorista || ''}" />
             <input id="swal-input4" class="swal2-input" placeholder="Descripción" value="${itemDescription}" />
             <select id="swal-parent-group" class="swal2-input">${parentGroupOptions}</select>
             <select id="swal-input3" class="swal2-input">${sectionOptions}</select>
@@ -1491,6 +1494,9 @@ section.insertBefore(newItem, afterTitle || null);
             const formData = new FormData();
             formData.append('nombre', nombre);
             formData.append('precio', precio);
+            const precioMayorista = document.getElementById('swal-input-precio-mayorista').value.trim();
+            formData.append('precio_mayorista', precioMayorista.replace(/\./g, ''));
+            
             formData.append('descripcion', descripcion);
             formData.append('tipo', tipo);
             formData.append('parent_group', parent_group);
@@ -1647,6 +1653,7 @@ section.insertBefore(newItem, afterTitle || null);
           html: `
                   <input id="swal-input1" class="swal2-input" placeholder="Nombre" />
                   <input id="swal-input2" class="swal2-input" placeholder="Precio" />
+                  <input id="swal-input-precio-mayorista" class="swal2-input" placeholder="Precio Mayorista" />
                   <input id="swal-input4" class="swal2-input" placeholder="Descripción" />
                   <input type="file" id="swal-file-upload" class="swal2-input" />
                   <select id="swal-parent-group" class="swal2-input">
@@ -1682,6 +1689,7 @@ section.insertBefore(newItem, afterTitle || null);
           preConfirm: async () => {
             const nombre = document.getElementById('swal-input1').value.trim();
             const precio = document.getElementById('swal-input2').value.trim();
+            const precioMayorista = document.getElementById('swal-input-precio-mayorista').value.trim();
             const descripcion = document.getElementById('swal-input4').value.trim();
             const selectedParentGroup = document.getElementById('swal-parent-group').value;
             if (!selectedParentGroup) {
@@ -1693,6 +1701,7 @@ section.insertBefore(newItem, afterTitle || null);
             formData.append('precio', precio.replace(/\./g, ''));
             formData.append('descripcion', descripcion);
             formData.append('parent_group', selectedParentGroup);
+            formData.append('precio_mayorista', precioMayorista.replace(/\./g, ''));
 
             const tipo = document.getElementById('swal-input3').value;
             if (tipo === 'new-section') {

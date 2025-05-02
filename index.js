@@ -128,7 +128,16 @@ baseRouter.post('/api/auth/login', (req, res) => {
 
 baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
   const db = ensureDatabaseConnection();
-  const { nombre, precio, descripcion, tipo, newSectionName, stock, parent_group } = req.body;
+  const {
+    nombre,
+    precio,
+    precio_mayorista,
+    descripcion,
+    tipo,
+    newSectionName,
+    stock,
+    parent_group
+  } = req.body;
 
   let parsedStock = [];
   try {
@@ -139,6 +148,9 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
   }
 
   const subelement = req.body.subelement === 'true';
+
+  const precioEntero = parseInt(precio.toString().replace(/\./g, ""));
+  const mayoristaEntero = parseInt(precio_mayorista?.toString().replace(/\./g, "") || "0");
 
   let img_url = '';
   if (req.file) {
@@ -157,54 +169,83 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
     }
   }
 
-  // ✅ Manejo de nuevas secciones en el menú
   if (tipo === 'new-section' && newSectionName) {
     const upperNewSectionName = newSectionName.trim().toUpperCase();
-    db.get('SELECT id FROM menu_sections WHERE UPPER(TRIM(nombre)) = ? AND parent_group = ?', 
-           [upperNewSectionName, parent_group], 
-           (err, row) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      
-      if (row) {
-        // 🚨 La sección ya existe en este grupo
-        return res.status(400).json({ error: `La sección "${newSectionName}" ya existe en "${parent_group}".` });
-      } 
+    db.get(
+      'SELECT id FROM menu_sections WHERE UPPER(TRIM(nombre)) = ? AND parent_group = ?',
+      [upperNewSectionName, parent_group],
+      (err, row) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
 
-      // 📌 Obtener la próxima posición dentro del `parent_group`
-      db.get('SELECT COALESCE(MAX(position), 0) + 1 AS nextPosition FROM menu_sections WHERE parent_group = ?', 
-             [parent_group], 
-             (err, row) => {
-          if (err) {
-              return res.status(500).json({ error: err.message });
-          }
-
-          // 📌 Insertar la nueva sección
-          db.run('INSERT INTO menu_sections (nombre, position, parent_group) VALUES (?, ?, ?)', 
-                 [upperNewSectionName, row.nextPosition, parent_group], 
-                 function (err) {
-              if (err) {
-                  return res.status(500).json({ error: err.message });
-              }
-              const newSectionId = this.lastID;
-              insertMenuItem(nombre, precio, descripcion, upperNewSectionName, img_url, subelement, parsedStock, parent_group, res);
+        if (row) {
+          return res.status(400).json({
+            error: `La sección "${newSectionName}" ya existe en "${parent_group}".`
           });
-      });
-    });
+        }
+
+        db.get(
+          'SELECT COALESCE(MAX(position), 0) + 1 AS nextPosition FROM menu_sections WHERE parent_group = ?',
+          [parent_group],
+          (err, row) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+
+            db.run(
+              'INSERT INTO menu_sections (nombre, position, parent_group) VALUES (?, ?, ?)',
+              [upperNewSectionName, row.nextPosition, parent_group],
+              function (err) {
+                if (err) {
+                  return res.status(500).json({ error: err.message });
+                }
+
+                const newSectionId = this.lastID;
+                insertMenuItem(
+                  nombre,
+                  precioEntero,
+                  mayoristaEntero,
+                  descripcion,
+                  upperNewSectionName,
+                  img_url,
+                  subelement,
+                  parsedStock,
+                  parent_group,
+                  res
+                );
+              }
+            );
+          }
+        );
+      }
+    );
   } else {
-    insertMenuItem(nombre, precio, descripcion, tipo.toUpperCase(), img_url, subelement, parsedStock, parent_group, res);
+    insertMenuItem(
+      nombre,
+      precioEntero,
+      mayoristaEntero,
+      descripcion,
+      tipo.toUpperCase(),
+      img_url,
+      subelement,
+      parsedStock,
+      parent_group,
+      res
+    );
   }
 });
 
 
-function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, stock, parent_group, res) {
+
+function insertMenuItem(nombre, precio, precio_mayorista, descripcion, tipo, img_url, subelement, stock, parent_group, res) {
   const db = ensureDatabaseConnection();
   const precioEntero = parseInt(precio.toString().replace(/\./g, ''));
+  const precioEnteroMayorista = parseInt(precio_mayorista.toString().replace(/\./g, '') || '0');
 
   db.run(
-    'INSERT INTO menu_items (nombre, precio, descripcion, tipo, img_url, subelement, parent_group) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [nombre, precioEntero, descripcion, tipo.toUpperCase(), img_url, subelement, parent_group || 'bebes'],
+    'INSERT INTO menu_items (nombre, precio, precio_mayorista, descripcion, tipo, img_url, subelement, parent_group) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [nombre, precioEntero, precioEnteroMayorista, descripcion, tipo.toUpperCase(), img_url, subelement, parent_group || 'bebes'],
     function (err) {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -213,7 +254,6 @@ function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, 
 
       const itemId = this.lastID;
 
-      // 👇 NUEVA LÍNEA: insert con aroma
       const insertStockQuery = 'INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)';
       const stockPromises = stock.map(({ aroma, cantidad }) => {
         return new Promise((resolve, reject) => {
@@ -226,7 +266,7 @@ function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, 
 
       Promise.all(stockPromises)
         .then(() => {
-          bumpMenuVersion(); // ✅ Incrementa versión del menú
+          bumpMenuVersion();
           res.json({ id: itemId, stock });
         })
         .catch(err => res.status(500).json({ error: 'Error al insertar stock: ' + err.message }));
@@ -260,7 +300,7 @@ baseRouter.get('/api/menu', (req, res) => {
 baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
-  const { nombre, precio, descripcion, tipo, stock, parent_group } = req.body;
+  const { nombre, precio, precio_mayorista, descripcion, tipo, stock, parent_group } = req.body;
 
   if (!nombre || !precio || !descripcion || !tipo || !stock) {
     return res.status(400).json({ error: "Faltan datos obligatorios." });
@@ -275,6 +315,7 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   }
 
   const precioEntero = parseInt(precio.toString().replace(/\./g, ""));
+  const precioMayoristaEntero = parseInt(precio_mayorista?.toString().replace(/\./g, "") || "0");
 
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
@@ -307,11 +348,11 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
 
       const query = `
         UPDATE menu_items 
-        SET nombre = ?, precio = ?, descripcion = ?, tipo = ?, img_url = ?, parent_group = ?
+        SET nombre = ?, precio = ?, precio_mayorista = ?, descripcion = ?, tipo = ?, img_url = ?, parent_group = ?
         WHERE id = ?`;
       db.run(
         query,
-        [nombre, precioEntero, descripcion, tipo, newImgUrl, parent_group || "bebes", id],
+        [nombre, precioEntero, precioMayoristaEntero, descripcion, tipo, newImgUrl, parent_group || "bebes", id],
         function (err) {
           if (err) {
             db.run("ROLLBACK");
