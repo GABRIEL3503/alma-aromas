@@ -670,7 +670,7 @@ section.insertBefore(newItem, afterTitle || null);
   
     const priceAndButton = `
         <div class="price-button-container">
-          <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}          ${item.precio_mayorista ? `<div class="item-price-mayorista">Mayorista: $${formatPrice(item.precio_mayorista)}</div>` : ''}
+          <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}          ${item.precio_mayorista ? `<div class="item-price-mayorista">$${formatPrice(item.precio_mayorista)}</div>` : ''}
 </span>
 
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
