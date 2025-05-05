@@ -567,7 +567,7 @@ h2 span {
   text-transform: uppercase;
   display: flex;
   color: #fe8076;
-  font-size: 84px;
+  font-size: 64px;
   line-height: 1.2;
   justify-content: center;
 
@@ -1719,7 +1719,7 @@ input[type="radio"]:checked::before {
 }
 
 .group-title {
-  font-size: 8.4rem;
+  font-size: 6.4rem;
   color: #fe8076;
   text-align: center;
   margin-bottom: 1.5rem;
