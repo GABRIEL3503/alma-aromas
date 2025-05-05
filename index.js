@@ -274,7 +274,34 @@ function insertMenuItem(nombre, precio, precio_mayorista, descripcion, tipo, img
   );
 }
 
- 
+ // Obtener contraseña actual
+baseRouter.get('/api/config/password/mayorista', (req, res) => {
+  const db = ensureDatabaseConnection();
+  db.get('SELECT value FROM config WHERE key = ?', ['mayorista_password'], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ password: row?.value || '' });
+  });
+});
+
+// Actualizar contraseña (solo admin validado)
+baseRouter.post('/api/config/password/mayorista', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { password } = req.body;
+
+  if (!password || typeof password !== 'string') {
+    return res.status(400).json({ error: 'Contraseña inválida' });
+  }
+
+  db.run(`
+    INSERT INTO config (key, value)
+    VALUES ('mayorista_password', ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `, [password], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, password });
+  });
+});
+
   
 baseRouter.get('/api/menu', (req, res) => {
   const db = ensureDatabaseConnection(); // Garantizar la conexión

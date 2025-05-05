@@ -2299,3 +2299,67 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
+document.addEventListener('DOMContentLoaded', function () {
+  const MAYORISTA_KEY = 'mayorista_access';
+  const CONTRASENA = 'aromas2024';
+
+  // Mostrar precios si ya está autenticado
+  if (localStorage.getItem(MAYORISTA_KEY) === 'true') {
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+  }
+
+  document.getElementById('btn-mayorista-toggle')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Catálogo exclusivo para mayoristas',
+      input: 'password',
+      inputPlaceholder: 'Ingrese contraseña',
+      showCancelButton: true,
+      confirmButtonText: 'Ingresar',
+      cancelButtonText: 'Solicitar contraseña',
+      footer: '<a href="https://wa.me/5402996134693?text=Hola%2C+quisiera+solicitar+la+contraseña+mayorista+de+Alma+Aromas" target="_blank">Solicitar por WhatsApp</a>',
+      customClass: {
+        popup: 'mayorista-popup'
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value === CONTRASENA) {
+        localStorage.setItem(MAYORISTA_KEY, 'true');
+        document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+        Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas', 'success');
+      } else if (result.isConfirmed) {
+        Swal.fire('Contraseña incorrecta', '', 'error');
+      }
+    });
+  });
+});
+document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
+  fetch('/api/config/password/mayorista')
+    .then(res => res.json())
+    .then(data => {
+      const current = data.password || '';
+      Swal.fire({
+        title: 'Editar contraseña mayorista',
+        input: 'text',
+        inputValue: current,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch('/api/config/password/mayorista', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: result.value.trim() })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire('Actualizado', 'Contraseña cambiada con éxito', 'success');
+            } else {
+              Swal.fire('Error', data.error || 'No se pudo guardar', 'error');
+            }
+          });
+        }
+      });
+    });
+});
