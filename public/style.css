@@ -109,7 +109,7 @@ margin-top: 8px;
 margin-bottom: 8px;}
 
 .container {
-  background-color: #FFF0C8;
+  background-color: #fff3f3;
   position: relative;
   /* Establecer el contexto de posicionamiento para los elementos hijos */
   overflow: hidden;
