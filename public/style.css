@@ -1145,7 +1145,7 @@ footer a {
   font-size: 41px;
   border-radius: 50%;
   padding: 16px 30px;
-  background-color: #D6983C;
+  background-color: #fe8076;
   color: white;
   border: none;
   cursor: pointer;
@@ -1186,7 +1186,7 @@ footer a {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      background-color: #007bff;
+      background-color: #fe8076;
       color: white;
       font-size: 45px;
       border: none;
