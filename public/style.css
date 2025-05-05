@@ -30,7 +30,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #DE7A9B;
+  background-color: #fcdbd6;
   /* Fondo transparente */
   position: fixed;
   top: 0;
@@ -133,6 +133,7 @@ margin-bottom: 8px;}
 }
 
 #btn-mayorista-toggle{
+  margin-top: 40px;
   color: white;
   font-size: 32px;
   text-decoration: none;
