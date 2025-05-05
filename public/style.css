@@ -141,6 +141,7 @@ margin-bottom: 8px;}
 }
 
 .image-container {
+  margin-bottom: -99px;
   padding-top: 120px;
   height: 80vh;
   background-color: #fe8076;
