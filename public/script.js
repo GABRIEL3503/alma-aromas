@@ -68,21 +68,21 @@ function formatPrice(value) {
 function checkAuthentication() {
   const token = localStorage.getItem('jwt_alma-aromas');
   const cartButton = document.getElementById('cart-button');
-  // 🔥 Ya no tocamos scrollToBottomButton
 
   if (token) {
     document.querySelectorAll('.auth-required').forEach((elem) => {
       elem.style.display = 'inline-block';
     });
     document.querySelector('.container-botones').style.display = '';
+    document.querySelector('.parallax-container').style.display = 'none';
 
-    // 🔥 solo ocultar carrito, no el botón de scroll
     if (cartButton) cartButton.style.display = 'none';
   } else {
     document.querySelectorAll('.auth-required').forEach((elem) => {
       elem.style.display = 'none';
     });
     document.querySelector('.container-botones').style.display = 'none';
+    document.querySelector('.parallax-container').style.display = '';
 
     if (cartButton) cartButton.style.display = 'flex';
   }

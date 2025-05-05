@@ -1159,6 +1159,7 @@ footer a {
 
 
 .container-botones {
+  z-index: 999;
   align-items: center;
   display: flex;
   flex-direction: row;
