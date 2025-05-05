@@ -5,7 +5,7 @@ body {
   margin: 0;
   background-size: auto;
   background-position: center;
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
 
 
@@ -159,7 +159,7 @@ margin-bottom: 8px;}
 }
 
 .section-title {
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
   font-weight: 500;
   letter-spacing: 2px;
@@ -198,7 +198,7 @@ margin-bottom: 8px;}
 
 .item-description {
   font-weight: 500;
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
   font-size: 40px;
   font-style: normal;
@@ -235,7 +235,7 @@ p {
 .item-title {
   /* font-style: italic; */
   max-width: 80%;
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
   letter-spacing: 2px;
   margin-top: 31px;
   font-weight: 700;
@@ -260,10 +260,10 @@ p {
 } */
 
 .item-price {
-  color: #DFFFFF;
+  color: #F2F2F2;
   letter-spacing: -0.5px;
   margin-left: 286px;
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
 
   font-size: 64px;
@@ -562,7 +562,7 @@ h2 {
 }
 
 h2 span {
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
   text-transform: uppercase;
   display: flex;
@@ -1782,7 +1782,7 @@ input[type="radio"]:checked::before {
 .group-description {
   color: #fe8076 !important;
   margin-top: -22px;
-    font-family: "Mali", cursive;
+  font-family: "Quicksand", sans-serif;
 ;
   font-size: 56px;
 }
