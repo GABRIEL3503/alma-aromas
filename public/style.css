@@ -417,7 +417,7 @@ option {
 
 .footer-left img {
   margin-right: 12px;
-  width: 180px;
+  width: 80px;
 }
 
 .social-icons img {
@@ -1124,6 +1124,7 @@ footer a {
 }
 
 .social-footer {
+  flex-direction: column;
   display: flex;
   align-content: center;
   align-items: center;
