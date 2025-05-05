@@ -164,7 +164,7 @@ margin-bottom: 8px;}
   font-weight: 500;
   letter-spacing: 2px;
   display: flex;
-  color: #F2D3AC !important;
+  color: #fe8076 !important;
   font-size: 70px;
   margin-bottom: 10px;
   justify-content: center;
@@ -1720,7 +1720,7 @@ input[type="radio"]:checked::before {
 
 .group-title {
   font-size: 8.4rem;
-  color: #5DA6AF;
+  color: #fe8076;
   text-align: center;
   margin-bottom: 1.5rem;
   font-weight: 800;
@@ -1780,7 +1780,7 @@ input[type="radio"]:checked::before {
   }
 }
 .group-description {
-  color: #DE7A9B !important;
+  color: #fe8076 !important;
   margin-top: -22px;
     font-family: "Mali", cursive;
 ;
