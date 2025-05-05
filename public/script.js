@@ -2346,7 +2346,7 @@ document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
         cancelButtonText: 'Cancelar'
       }).then(result => {
         if (result.isConfirmed) {
-          fetch('/api/config/password/mayorista', {
+          fetch('/alma-aromas/api/config/password/mayorista', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: result.value.trim() })
