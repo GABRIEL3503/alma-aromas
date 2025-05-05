@@ -2333,8 +2333,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
-  fetch('/api/config/password/mayorista')
-    .then(res => res.json())
+  fetch('/alma-aromas/api/config/password/mayorista')
+  .then(res => res.json())
     .then(data => {
       const current = data.password || '';
       Swal.fire({
