@@ -371,12 +371,6 @@ option {
 
 
 
-.logo {
-  width: 280px;
-  height: auto;
-  margin-right: 20px;
-}
-
 .social-icons {
   display: flex;
   align-items: center;
@@ -2445,3 +2439,8 @@ font-size: 2.1rem;
     display: none;
   }
   
+.logo {
+  width: 280px;
+  height: auto;
+  margin-right: 20px;
+}
