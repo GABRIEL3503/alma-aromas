@@ -1130,7 +1130,9 @@ footer a {
   align-items: center;
 }
 
-
+.log{
+  width: 280px;
+}
 .price-button-container {
   display: flex;
   align-items: center;
