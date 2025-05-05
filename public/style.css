@@ -83,7 +83,7 @@ body {
 .hamburger div {
   width: 55px;
   height: 7px;
-  background-color: #f1f1f1;
+  background-color: #fe8076;
   margin: 6px 7px;
   transition: 0.4s;
 
@@ -928,7 +928,7 @@ div:where(.swal2-container) .swal2-html-container {
 .navbar-logo p{
   letter-spacing: 2px;
   margin-top: 60px;
-  color: white!important;
+  color: #fe8076!important;
     font-size: 40px;
 }
 .navbar-logo {
