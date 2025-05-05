@@ -372,7 +372,7 @@ option {
 
 
 .logo {
-  width: 50px;
+  width: 280px;
   height: auto;
   margin-right: 20px;
 }
@@ -417,7 +417,7 @@ option {
 
 .footer-left img {
   margin-right: 12px;
-  width: 180px;
+  width: 80px;
 }
 
 .social-icons img {
@@ -1130,9 +1130,7 @@ footer a {
   align-items: center;
 }
 
-.log{
-  width: 280px;
-}
+
 .price-button-container {
   display: flex;
   align-items: center;
