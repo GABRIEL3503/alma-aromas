@@ -127,15 +127,29 @@ margin-bottom: 8px;}
 }
 
 .image-container img {
-  padding: 28px;
+  padding: 10px;
   /* margin: 40px; */
-  width: 980px;
   object-fit: cover;
 }
 
+#btn-mayorista-toggle{
+  color: white;
+  font-size: 32px;
+  text-decoration: none;
+  letter-spacing: -2px;
+}
+
 .image-container {
-  display: flex;
+  padding-top: 120px;
+  height: 80vh;
+  background-color: #fe8076;
+  width: 100vw;
+  display: flex
+;
   justify-content: center;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
 }
 
 .menu-section {
@@ -903,6 +917,9 @@ div:where(.swal2-container) .swal2-html-container {
 }
 
 .puff-in-center {
+  margin-bottom: 140px;
+  z-index: 9999;
+  width: 460px;
   -webkit-animation: puff-in-center 0.7s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
   animation: puff-in-center 0.7s cubic-bezier(0.470, 0.000, 0.745, 0.715) both;
 }
@@ -1747,8 +1764,8 @@ input[type="radio"]:checked::before {
   animation: bounce 0.8s infinite ease-in-out;
 }
 .arrow-container img {
-  width: 140px;
-  height: 140px;
+  width: 114px;
+  height: 114px;
 }
 @keyframes bounce {
   0%, 100% {
