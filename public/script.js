@@ -68,13 +68,14 @@ function formatPrice(value) {
 function checkAuthentication() {
   const token = localStorage.getItem('jwt_alma-aromas');
   const cartButton = document.getElementById('cart-button');
+  const parallax = document.querySelector('.parallax-container');
 
   if (token) {
     document.querySelectorAll('.auth-required').forEach((elem) => {
       elem.style.display = 'inline-block';
     });
     document.querySelector('.container-botones').style.display = '';
-    document.querySelector('.parallax-container').style.display = 'none';
+    if (parallax) parallax.style.display = 'none';
 
     if (cartButton) cartButton.style.display = 'none';
   } else {
@@ -82,7 +83,7 @@ function checkAuthentication() {
       elem.style.display = 'none';
     });
     document.querySelector('.container-botones').style.display = 'none';
-    document.querySelector('.parallax-container').style.display = '';
+    if (parallax) parallax.style.display = '';
 
     if (cartButton) cartButton.style.display = 'flex';
   }
