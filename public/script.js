@@ -38,12 +38,12 @@ const PARENT_GROUPS = [
   {
     id: 'aromas',
     title: 'AROMAS',
-    description: '• texto•'
+    description: '• Sandra Marzzan •'
   },
   {
     id: 'sahumerios',
     title: 'SAHUMERIOS',
-    description: '• texto •'
+    description: '• Aromanza | Sagrada Madre •'
   },
   
 ];
