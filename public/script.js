@@ -2309,28 +2309,21 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   }
 
-  document.getElementById('btn-mayorista-toggle')?.addEventListener('click', function (e) {
-    e.preventDefault();
-    Swal.fire({
-      title: 'Catálogo exclusivo para mayoristas',
-      input: 'password',
-      inputPlaceholder: 'Ingrese contraseña',
-      showCancelButton: true,
-      confirmButtonText: 'Ingresar',
-      cancelButtonText: 'Solicitar contraseña',
-      footer: '<a href="https://wa.me/5402996134693?text=Hola%2C+quisiera+solicitar+la+contraseña+mayorista+de+Alma+Aromas" target="_blank">Solicitar por WhatsApp</a>',
-      customClass: {
-        popup: 'mayorista-popup'
-      }
-    }).then((result) => {
-      if (result.isConfirmed && result.value === CONTRASENA) {
-        localStorage.setItem(MAYORISTA_KEY, 'true');
-        document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
-        Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas', 'success');
-      } else if (result.isConfirmed) {
-        Swal.fire('Contraseña incorrecta', '', 'error');
-      }
-    });
+  document.getElementById('btn-mayorista-toggle').addEventListener('click', () => {
+    document.getElementById('popup-mayorista').classList.remove('hidden');
+  });
+  
+  document.getElementById('btn-acceder').addEventListener('click', () => {
+    const pass = document.getElementById('mayorista-pass').value;
+    if (pass === CONTRASENA) {
+      localStorage.setItem(MAYORISTA_KEY, 'true');
+      document.getElementById('popup-mayorista').classList.add('hidden');
+      alert('Acceso concedido. Ahora puedes ver precios mayoristas.');
+      // Mostrar precios mayoristas
+      document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+    } else {
+      alert('Contraseña incorrecta');
+    }
   });
 });
 document.getElementById('btn-admin-pass')?.addEventListener('click', () => {

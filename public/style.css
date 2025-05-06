@@ -2444,3 +2444,75 @@ font-size: 2.1rem;
   height: auto;
   margin-right: 20px;
 }
+.mayorista-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+
+.mayorista-modal {
+  background: #fff8f6;
+  /* border: 5px solid #ff7d72; */
+  border-radius: 20px;
+  padding: 100px;
+  /* max-width: 320px; */
+  width: 58%;
+  text-align: center;
+  font-family: "Nunito", serif;
+
+}
+
+.logo {
+  max-width: 120px;
+  margin-bottom: 1rem;
+}
+
+.mayorista-modal h2 {
+  color: #f26860;
+  margin-bottom: 1.2rem;
+  font-size: 44px;
+}
+
+input[type="password"] {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.btn-acceder {
+  background-color: #f26860;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 0.6rem;
+}
+
+.btn-solicitar {
+  display: inline-block;
+  border: 2px solid #f26860;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  color: #f26860;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.btn-solicitar:hover {
+  background-color: #f2686020;
+}
+
+.hidden {
+  display: none;
+}
+
