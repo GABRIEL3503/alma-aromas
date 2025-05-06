@@ -36,25 +36,16 @@ function formatDateArgentina(date, includeTime = true) {
 
 const PARENT_GROUPS = [
   {
-    id: 'bebes',
-    title: 'BEBÉS',
-    description: '• Hasta 2 años •'
+    id: 'aromas',
+    title: 'AROMAS',
+    description: '• texto•'
   },
   {
-    id: 'niños',
-    title: 'NIÑOS Y NIÑAS',
-    description: '• De 3 a 10 años •'
+    id: 'sahumerios',
+    title: 'SAHUMERIOS',
+    description: '• texto •'
   },
-  {
-    id: 'accesorios',
-    title: 'ACCESORIOS',
-    description: ''
-  },
-  {
-    id: 'calzados',
-    title: 'CALZADOS',
-    description: ''
-  }
+  
 ];
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -537,10 +528,10 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
       const groupContainer = document.createElement('div');
       groupContainer.className = 'menu-group';
       groupContainer.setAttribute('data-group', group.id);
-      const hasParallax = group.id === 'bebes' || group.id === 'accesorios';
+      const hasParallax = group.id === 'aromas' || group.id === 'sahumerios';
       const parallaxHTML = hasParallax ? `
           <div class="parallax-container">
-              <img src="img/Paralax ${group.id === 'bebes' ? '1' : '2'} frase.webp">
+              <img src="img/Paralax ${group.id === 'aromas' ? '1' : '2'} frase.webp">
               <h3 class="parallax-text"></h3>
           </div>
         ` : '';
@@ -558,7 +549,7 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
     }, {});
     const sections = {};
     menuData.forEach(item => {
-      const parentGroup = item.parent_group || 'bebes';
+      const parentGroup = item.parent_group || 'aromas';
       const sectionKey = `${parentGroup}-${item.tipo}`;
   
       if (!sections[sectionKey]) {
