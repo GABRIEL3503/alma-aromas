@@ -2544,3 +2544,6 @@ input[type="password"] {
   cursor: pointer;
   z-index: 10;
 }
+#swal-username, #swal-password{
+  width: 80%;
+}
