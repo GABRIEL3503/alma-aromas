@@ -2455,14 +2455,18 @@ font-size: 2.1rem;
 }
 
 .mayorista-modal {
-  background: #fff8f6;
-  /* border: 5px solid #ff7d72; */
-  border-radius: 20px;
-  padding: 100px;
-  /* max-width: 320px; */
-  width: 58%;
-  text-align: center;
-  font-family: "Nunito", serif;
+  display: flex
+  ;
+      background: #fff8f6;
+      /* border: 5px solid #ff7d72; */
+      border-radius: 20px;
+      padding: 100px;
+      /* max-width: 320px; */
+      width: 58%;
+      text-align: center;
+      font-family: "Nunito", serif;
+      flex-direction: column;
+      align-items: center;
 
 }
 
@@ -2478,34 +2482,35 @@ font-size: 2.1rem;
 }
 
 input[type="password"] {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  width: 96%;
+  padding: 38px;
+  border: 1px solid #f26860;
+  border-radius: 14px;
   margin-bottom: 1rem;
-  font-size: 1rem;
+  font-size: 22px;
 }
 
 .btn-acceder {
+  padding: 22px;
   background-color: #f26860;
   color: white;
   border: none;
-  border-radius: 999px;
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  border-radius: 48px;
+  font-size: 28px;
   cursor: pointer;
-  width: 100%;
+  width: 110%;
   margin-bottom: 0.6rem;
 }
 
 .btn-solicitar {
+  width: 100%;
   display: inline-block;
   border: 2px solid #f26860;
   border-radius: 999px;
-  padding: 0.5rem 1rem;
+  padding: 22px 28px;
   color: #f26860;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 28px;
   transition: background 0.3s;
 }
 
