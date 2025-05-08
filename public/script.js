@@ -2291,9 +2291,9 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
+
 document.addEventListener('DOMContentLoaded', function () {
   const MAYORISTA_KEY = 'mayorista_access';
-  const CONTRASENA = 'aromas2024';
 
   // Mostrar precios si ya está autenticado
   if (localStorage.getItem(MAYORISTA_KEY) === 'true') {
@@ -2303,51 +2303,61 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btn-mayorista-toggle').addEventListener('click', () => {
     document.getElementById('popup-mayorista').classList.remove('hidden');
   });
-  
+
   document.getElementById('btn-acceder').addEventListener('click', () => {
-    const pass = document.getElementById('mayorista-pass').value;
-    if (pass === CONTRASENA) {
-      localStorage.setItem(MAYORISTA_KEY, 'true');
-      document.getElementById('popup-mayorista').classList.add('hidden');
-      alert('Acceso concedido. Ahora puedes ver precios mayoristas.');
-      // Mostrar precios mayoristas
-      document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
-    } else {
-      alert('Contraseña incorrecta');
-    }
+    const inputPass = document.getElementById('mayorista-pass').value.trim();
+
+    fetch('/alma-aromas/api/config/password/mayorista')
+      .then(res => res.json())
+      .then(data => {
+        const currentPassword = data.password?.trim();
+        if (inputPass === currentPassword) {
+          localStorage.setItem(MAYORISTA_KEY, 'true');
+          document.getElementById('popup-mayorista').classList.add('hidden');
+          Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas.', 'success');
+          document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+        } else {
+          Swal.fire('Contraseña incorrecta', 'Verifica la contraseña ingresada.', 'error');
+        }
+      })
+      .catch(() => {
+        Swal.fire('Error', 'No se pudo verificar la contraseña.', 'error');
+      });
+  });
+
+  document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
+    fetch('/alma-aromas/api/config/password/mayorista')
+      .then(res => res.json())
+      .then(data => {
+        const current = data.password || '';
+        Swal.fire({
+          title: 'Editar contraseña mayorista',
+          input: 'text',
+          inputValue: current,
+          showCancelButton: true,
+          confirmButtonText: 'Guardar',
+          cancelButtonText: 'Cancelar'
+        }).then(result => {
+          if (result.isConfirmed) {
+            fetch('/alma-aromas/api/config/password/mayorista', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ password: result.value.trim() })
+            })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  Swal.fire('Actualizado', 'Contraseña cambiada con éxito', 'success');
+                } else {
+                  Swal.fire('Error', data.error || 'No se pudo guardar', 'error');
+                }
+              });
+          }
+        });
+      });
   });
 });
-document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
-  fetch('/alma-aromas/api/config/password/mayorista')
-  .then(res => res.json())
-    .then(data => {
-      const current = data.password || '';
-      Swal.fire({
-        title: 'Editar contraseña mayorista',
-        input: 'text',
-        inputValue: current,
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar'
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch('/alma-aromas/api/config/password/mayorista', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: result.value.trim() })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Actualizado', 'Contraseña cambiada con éxito', 'success');
-            } else {
-              Swal.fire('Error', data.error || 'No se pudo guardar', 'error');
-            }
-          });
-        }
-      });
-    });
-});
+
 document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
   document.getElementById('popup-mayorista')?.classList.add('hidden');
 });
