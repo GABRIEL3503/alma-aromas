@@ -2527,4 +2527,20 @@ input[type="password"] {
 
 .logotipo{
   width: 320px;
+}.mayorista-modal {
+  position: relative; /* <- Esto alinea el botón con este contenedor */
+  /* el resto de tus estilos van acá */
+}
+
+.btn-cerrar-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 44px;
+  font-weight: bold;
+  color: #f26860;
+  cursor: pointer;
+  z-index: 10;
 }

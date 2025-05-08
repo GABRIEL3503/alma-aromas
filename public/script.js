@@ -2348,3 +2348,6 @@ document.getElementById('btn-admin-pass')?.addEventListener('click', () => {
       });
     });
 });
+document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
+  document.getElementById('popup-mayorista')?.classList.add('hidden');
+});
