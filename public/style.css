@@ -2457,6 +2457,7 @@ font-size: 2.1rem;
 .mayorista-modal {
   display: flex
   ;
+  gap: 16px;
       background: #fff8f6;
       /* border: 5px solid #ff7d72; */
       border-radius: 20px;
@@ -2522,3 +2523,8 @@ input[type="password"] {
   display: none;
 }
 
+
+
+.logotipo{
+  width: 320px;
+}
