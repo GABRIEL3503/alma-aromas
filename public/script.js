@@ -2427,3 +2427,9 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
   document.getElementById('popup-mayorista')?.classList.add('hidden');
 });
+const mayoristaInfo = document.querySelector('.mayorista-trigger');
+if (localStorage.getItem('mayorista_access') === 'true' && mayoristaInfo) {
+  mayoristaInfo.textContent = 'Estás viendo precios como mayorista';
+  mayoristaInfo.removeAttribute('href');
+  mayoristaInfo.style.cursor = 'default';
+}
