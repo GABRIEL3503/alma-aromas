@@ -2295,6 +2295,8 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const MAYORISTA_KEY = 'mayorista_access';
   const isMayorista = localStorage.getItem(MAYORISTA_KEY) === 'true';
@@ -2383,6 +2385,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 });
+
 
 
 document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
