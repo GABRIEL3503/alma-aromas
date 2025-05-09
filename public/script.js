@@ -75,13 +75,13 @@ function checkAuthentication() {
 
   // Mostrar precios según el rol
   if (isAdmin) {
-    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
     document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'inline-block');
   } else if (isMayorista) {
     document.querySelectorAll('.item-price').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   } else {
-    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
     document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'none');
   }
 }
