@@ -69,6 +69,9 @@ function checkAuthentication() {
     if (parallax) parallax.style.display = 'none';
 
     if (cartButton) cartButton.style.display = 'none';
+
+    // ✅ Mostrar precios mayoristas si es admin (logueado)
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   } else {
     document.querySelectorAll('.auth-required').forEach((elem) => {
       elem.style.display = 'none';
