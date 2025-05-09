@@ -61,24 +61,31 @@ function checkAuthentication() {
   const cartButton = document.getElementById('cart-button');
   const parallax = document.querySelector('.parallax-container');
 
-  if (token) {
-    document.querySelectorAll('.auth-required').forEach((elem) => {
-      elem.style.display = 'inline-block';
-    });
-    document.querySelector('.container-botones').style.display = '';
-    if (parallax) parallax.style.display = 'none';
+  const isAdmin = !!token;
+  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
 
-    if (cartButton) cartButton.style.display = 'none';
+  // Mostrar botones y zonas protegidas
+  document.querySelectorAll('.auth-required').forEach((elem) => {
+    elem.style.display = isAdmin ? 'inline-block' : 'none';
+  });
+  document.querySelector('.container-botones').style.display = isAdmin ? '' : 'none';
+  if (parallax) parallax.style.display = isAdmin ? 'none' : '';
+
+  if (cartButton) cartButton.style.display = isAdmin ? 'none' : 'flex';
+
+  // Mostrar precios según el rol
+  if (isAdmin) {
+    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'inline-block');
+  } else if (isMayorista) {
+    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   } else {
-    document.querySelectorAll('.auth-required').forEach((elem) => {
-      elem.style.display = 'none';
-    });
-    document.querySelector('.container-botones').style.display = 'none';
-    if (parallax) parallax.style.display = '';
-
-    if (cartButton) cartButton.style.display = 'flex';
+    document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'none');
   }
 }
+
 
 
 // Función para actualizar la página
