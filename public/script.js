@@ -549,7 +549,11 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
     }, {});
     const sections = {};
     menuData.forEach(item => {
-      const parentGroup = item.parent_group || 'aromas';
+let parentGroup = item.parent_group;
+if (!parentGroup || !parentContainers[parentGroup]) {
+  console.warn(`Grupo inválido "${parentGroup}". Usando fallback 'aromas'.`, item);
+  parentGroup = 'aromas';
+}
       const sectionKey = `${parentGroup}-${item.tipo}`;
   
       if (!sections[sectionKey]) {
