@@ -1526,7 +1526,12 @@ const itemPrice = priceTextNode && priceTextNode.nodeType === Node.TEXT_NODE
                     loadAromasForItem(itemId);
                     const updatedImgUrl = data.img_url || img_url;
                     updateMenuItemDOM({ id: itemId, nombre, precio, descripcion, img_url: updatedImgUrl });
-                  
+                  const updatedMayorista = document.querySelector(`.menu-item[data-id="${itemId}"] .item-price-mayorista`);
+if (updatedMayorista) {
+  updatedMayorista.textContent = `$${precioMayorista.replace(/\./g, '')}`;
+  updatedMayorista.style.display = 'block';
+}
+
                     Swal.fire('Elemento actualizado', '', 'success');
                   }
                   
