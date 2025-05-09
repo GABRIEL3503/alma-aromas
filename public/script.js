@@ -1297,7 +1297,10 @@ section.insertBefore(newItem, afterTitle || null);
       const itemElement = event.target.closest('.menu-item');
       const itemId = itemElement.dataset.id;
       const itemTitle = itemElement.querySelector('.item-title').textContent;
-      const itemPrice = itemElement.querySelector('.item-price').textContent.substring(1);
+const priceTextNode = itemElement.querySelector('.item-price')?.childNodes[0];
+const itemPrice = priceTextNode && priceTextNode.nodeType === Node.TEXT_NODE
+  ? priceTextNode.textContent.trim().replace('$', '')
+  : '';
       const itemDescription = itemElement.querySelector('.item-description').textContent;
       const itemType = event.target.closest('.menu-section').getAttribute('data-type');
       const imgElement = itemElement.querySelector('img');
