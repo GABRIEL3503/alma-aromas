@@ -605,9 +605,12 @@ h2 span {
 
 }
 .container-stockuno{
-  justify-content: center;
-  width: 99%;
-  display: flex;
+    justify-content: center;
+    width: 99%;
+    display: flex
+;
+    flex-direction: column;
+    align-items: center;
 }
 .subelement .delete-stock-btn {
   font-family: "Nunito", serif;
