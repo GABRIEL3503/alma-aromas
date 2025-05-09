@@ -2427,9 +2427,27 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
   document.getElementById('popup-mayorista')?.classList.add('hidden');
 });
-const mayoristaInfo = document.querySelector('.mayorista-trigger');
-if (localStorage.getItem('mayorista_access') === 'true' && mayoristaInfo) {
-  mayoristaInfo.textContent = 'Estás viendo precios como mayorista';
-  mayoristaInfo.removeAttribute('href');
-  mayoristaInfo.style.cursor = 'default';
+const mayoristaTrigger = document.getElementById('btn-mayorista-toggle');
+
+if (localStorage.getItem('mayorista_access') === 'true' && mayoristaTrigger) {
+  mayoristaTrigger.textContent = 'Estás viendo precios como mayorista';
+  mayoristaTrigger.style.cursor = 'pointer';
+  mayoristaTrigger.removeAttribute('href');
+
+  mayoristaTrigger.addEventListener('click', () => {
+    Swal.fire({
+      title: '¿Cerrar sesión mayorista?',
+      text: 'Volverás a ver precios como cliente minorista.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Cerrar sesión',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('mayorista_access');
+        location.reload();
+      }
+    });
+  });
 }
+
