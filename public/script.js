@@ -2295,27 +2295,25 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
-
 document.addEventListener('DOMContentLoaded', function () {
   const MAYORISTA_KEY = 'mayorista_access';
+  const isMayorista = localStorage.getItem(MAYORISTA_KEY) === 'true';
+  const isAdmin = !!document.getElementById('btn-admin-pass');
 
-  function applyPriceVisibility() {
-    const isAdmin = !!localStorage.getItem('jwt_alma-aromas');
-    const isMayorista = localStorage.getItem(MAYORISTA_KEY) === 'true';
+  // Mostrar precios mayoristas si está autenticado
+  if (isMayorista) {
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
 
-    if (isAdmin) {
-      document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
-      document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'none'); // Solo minorista
-    } else if (isMayorista) {
-      document.querySelectorAll('.item-price').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
-    } else {
-      document.querySelectorAll('.item-price').forEach(el => el.style.display = 'inline-block');
-      document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'none');
+    // Si NO es admin, ocultar solo el precio minorista dentro de .item-price
+    if (!isAdmin) {
+      document.querySelectorAll('.item-price').forEach(el => {
+        const priceText = el.firstChild;
+        if (priceText && priceText.nodeType === Node.TEXT_NODE) {
+          priceText.textContent = '';
+        }
+      });
     }
   }
-
-  applyPriceVisibility();
 
   document.getElementById('btn-mayorista-toggle').addEventListener('click', () => {
     document.getElementById('popup-mayorista').classList.remove('hidden');
@@ -2332,7 +2330,18 @@ document.addEventListener('DOMContentLoaded', function () {
           localStorage.setItem(MAYORISTA_KEY, 'true');
           document.getElementById('popup-mayorista').classList.add('hidden');
           Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas.', 'success');
-          applyPriceVisibility();
+
+          document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+
+          // Ocultar minorista si NO es admin
+          if (!document.getElementById('btn-admin-pass')) {
+            document.querySelectorAll('.item-price').forEach(el => {
+              const priceText = el.firstChild;
+              if (priceText && priceText.nodeType === Node.TEXT_NODE) {
+                priceText.textContent = '';
+              }
+            });
+          }
         } else {
           Swal.fire('Contraseña incorrecta', 'Verifica la contraseña ingresada.', 'error');
         }
