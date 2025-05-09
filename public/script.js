@@ -1091,7 +1091,7 @@ section.insertBefore(newItem, afterTitle || null);
     localStorage.setItem('cart', JSON.stringify(cart));
   
     updateCartTotal().then((total) => {
-      document.getElementById('ca-total').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('ca-total').textContent = `${total.toFixed(2)}`;
     });
   }
   
