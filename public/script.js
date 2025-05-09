@@ -2300,13 +2300,14 @@ setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
 document.addEventListener('DOMContentLoaded', function () {
   const MAYORISTA_KEY = 'mayorista_access';
   const isMayorista = localStorage.getItem(MAYORISTA_KEY) === 'true';
-  const isAdmin = !!document.getElementById('btn-admin-pass');
+  const isAdmin = !!localStorage.getItem('jwt_alma-aromas');  // 👈 admin se detecta por token JWT
 
-  // Mostrar precios según el rol
+  // Mostrar precios mayoristas si es admin o mayorista
   if (isMayorista || isAdmin) {
     document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   }
 
+  // Si es mayorista y NO es admin, ocultar precio minorista
   if (isMayorista && !isAdmin) {
     document.querySelectorAll('.item-price').forEach(el => {
       const priceText = el.firstChild;
@@ -2334,7 +2335,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
           document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
 
-          if (!document.getElementById('btn-admin-pass')) {
+          const isAdminNow = !!localStorage.getItem('jwt_alma-aromas');  // vuelve a comprobar
+
+          if (!isAdminNow) {
             document.querySelectorAll('.item-price').forEach(el => {
               const priceText = el.firstChild;
               if (priceText && priceText.nodeType === Node.TEXT_NODE) {
