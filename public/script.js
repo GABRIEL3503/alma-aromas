@@ -1116,7 +1116,7 @@ section.insertBefore(newItem, afterTitle || null);
     }
   
     updateCartTotal().then((total) => {
-      document.getElementById('ca-total').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('ca-total').textContent = `${total.toFixed(2)}`;
       console.log(`Nuevo total del carrito: $${total}`);
   
       if (Object.keys(cart).length === 0) {
