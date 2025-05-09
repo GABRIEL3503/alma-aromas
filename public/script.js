@@ -967,7 +967,7 @@ section.insertBefore(newItem, afterTitle || null);
                     <input type="text" id="delivery-address" placeholder="Ingrese dirección">
                   </div>
                 </div>
-                <p><strong>Total: $<span id="ca-total">${formatPrice(total)}</span></strong></p>
+                <p><strong>Total:<span id="ca-total">${formatPrice(total)}</span></strong></p>
               </span>
               <div class="payment-options">
                 <h4>Pago</h4>
