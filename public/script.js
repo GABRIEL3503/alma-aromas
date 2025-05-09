@@ -1011,9 +1011,23 @@ section.insertBefore(newItem, afterTitle || null);
             document.body.style.overflow = '';
           });
   
-          document.querySelector('.confirm-order-btn').addEventListener('click', function () {
-            confirmOrder(formattedDate);
-          });
+        document.querySelector('.confirm-order-btn').addEventListener('click', function () {
+  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+  const MINIMO_MAYORISTA = 40000;
+  const total = parseInt(document.getElementById('ca-total')?.textContent || '0', 10);
+
+  if (isMayorista && total < MINIMO_MAYORISTA) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Compra mínima requerida',
+      text: `El monto mínimo para pedidos mayoristas es de $${MINIMO_MAYORISTA.toLocaleString('es-AR')}.`,
+    });
+    return; // ⛔ NO continuar
+  }
+
+  confirmOrder(formattedDate); // ✅ continúa si pasa la validación
+});
+
   
           document.querySelectorAll('.quantity-btn').forEach(button => {
             button.addEventListener('click', handleQuantityChange);
