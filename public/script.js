@@ -1014,7 +1014,7 @@ section.insertBefore(newItem, afterTitle || null);
 document.querySelector('.confirm-order-btn').addEventListener('click', function () {
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
 
-  fetch('/api/config/minimo-mayorista')
+fetch('/alma-aromas/api/config/minimo-mayorista')
     .then(res => res.json())
     .then(data => {
       const MINIMO_MAYORISTA = data.value || 40000;
@@ -2447,7 +2447,7 @@ document.addEventListener('DOMContentLoaded', function () {
 const btnMinimo = document.getElementById('btn-minimo-mayorista');
 
 btnMinimo?.addEventListener('click', () => {
-  fetch('/api/config/minimo-mayorista')
+fetch('/alma-aromas/api/config/minimo-mayorista')
     .then(res => res.json())
     .then(data => {
       const current = data.value || 40000;
@@ -2461,7 +2461,7 @@ btnMinimo?.addEventListener('click', () => {
         cancelButtonText: 'Cancelar'
       }).then(result => {
         if (result.isConfirmed) {
-          fetch('/api/config/minimo-mayorista', {
+          fetch('/alma-aromas/api/config/minimo-mayorista', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ value: result.value })
