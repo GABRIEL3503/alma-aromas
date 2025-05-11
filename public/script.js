@@ -1236,29 +1236,7 @@ section.insertBefore(newItem, afterTitle || null);
   
 
 
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.addEventListener('click', function (event) {
-    if (event.target.classList.contains('add-to-cart-btn')) {
-      const productId = event.target.dataset.id;
-      const productName = event.target.dataset.name;
 
-      const isMayorista = localStorage.getItem('mayorista_access') === 'true';
-      const productElement = event.target.closest('.menu-item');
-      let productPrice = parseFloat(event.target.dataset.price); // default: minorista
-
-      if (isMayorista && productElement) {
-        const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
-        const raw = mayoristaText.replace(/\D/g, '');
-        const parsed = parseFloat(raw);
-        if (!isNaN(parsed)) {
-          productPrice = parsed;
-        }
-      }
-
-      addToCart(productId, productName, productPrice);
-    }
-  });
-});
 
   // Función para mostrar la notificación con Toastify.js
   function showToast(productName) {
@@ -2452,3 +2430,24 @@ if (localStorage.getItem('mayorista_access') === 'true' && mayoristaTrigger) {
   });
 }
 
+document.body.addEventListener('click', function (event) {
+  if (event.target.classList.contains('add-to-cart-btn')) {
+    const productId = event.target.dataset.id;
+    const productName = event.target.dataset.name;
+
+    const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+    const productElement = event.target.closest('.menu-item');
+    let productPrice = parseFloat(event.target.dataset.price); // minorista por defecto
+
+    if (isMayorista && productElement) {
+      const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
+      const raw = mayoristaText.replace(/\D/g, '');
+      const parsed = parseFloat(raw);
+      if (!isNaN(parsed)) {
+        productPrice = parsed;
+      }
+    }
+
+    addToCart(productId, productName, productPrice);
+  }
+});
