@@ -1178,71 +1178,82 @@ section.insertBefore(newItem, afterTitle || null);
     }
   });
 
-  function addToCart(productId, productName, productPrice) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
-  
-    if (!productElement) {
-      console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
-      return;
-    }
-  
-    const aromaElement = productElement.querySelector('.aroma-select');
-  
-    if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Selecciona un aroma',
-        text: 'Debes elegir un aroma antes de continuar.',
-        confirmButtonText: 'Aceptar',
-        customClass: { popup: 'mi-alerta-personalizada' }
-      });
-      return;
-    }
-  
-    const selectedAroma = aromaElement?.value || 'sin-aroma';
-  
-    const menuSection = productElement.closest('.menu-section');
-    const sectionName = menuSection ? menuSection.getAttribute('data-type') : '';
-  
-    let mainTitle = '';
-    let current = productElement.previousElementSibling;
-  
-    if (productElement.querySelector('.item-title.porciones-title')) {
-      while (current) {
-        const titleElement = current.querySelector('.item-title:not(.porciones-title)');
-        if (titleElement) {
-          mainTitle = titleElement.textContent.trim();
-          break;
-        }
-        current = current.previousElementSibling;
-      }
-    }
-  
-    const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
-    const productKey = `${productId}-${selectedAroma}`;
-  
-    if (cart[productKey]) {
-      cart[productKey].quantity += 1;
-      cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
-      console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
-    } else {
-      cart[productKey] = {
-        id: productId,
-        name: finalProductName,
-        price: productPrice,
-        quantity: 1,
-        totalPrice: productPrice,
-        aroma: selectedAroma
-      };
-      console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
-    }
-  
-    localStorage.setItem('cart', JSON.stringify(cart));
-    console.log(`Carrito actualizado en localStorage:`, cart);
-    showToast(finalProductName);
+function addToCart(productId, productName, productPrice) {
+  let cart = JSON.parse(localStorage.getItem('cart')) || {};
+  const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
+
+  if (!productElement) {
+    console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
+    return;
   }
-  
+
+  // ✅ Si es mayorista, reemplazar precio por el visible en el DOM
+  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+  if (isMayorista) {
+    const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
+    const raw = mayoristaText.replace(/\D/g, '');
+    const parsed = parseFloat(raw);
+    if (!isNaN(parsed)) {
+      productPrice = parsed;
+    }
+  }
+
+  const aromaElement = productElement.querySelector('.aroma-select');
+
+  if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Selecciona un aroma',
+      text: 'Debes elegir un aroma antes de continuar.',
+      confirmButtonText: 'Aceptar',
+      customClass: { popup: 'mi-alerta-personalizada' }
+    });
+    return;
+  }
+
+  const selectedAroma = aromaElement?.value || 'sin-aroma';
+
+  const menuSection = productElement.closest('.menu-section');
+  const sectionName = menuSection ? menuSection.getAttribute('data-type') : '';
+
+  let mainTitle = '';
+  let current = productElement.previousElementSibling;
+
+  if (productElement.querySelector('.item-title.porciones-title')) {
+    while (current) {
+      const titleElement = current.querySelector('.item-title:not(.porciones-title)');
+      if (titleElement) {
+        mainTitle = titleElement.textContent.trim();
+        break;
+      }
+      current = current.previousElementSibling;
+    }
+  }
+
+  const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
+  const productKey = `${productId}-${selectedAroma}`;
+
+  if (cart[productKey]) {
+    cart[productKey].quantity += 1;
+    cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
+    console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
+  } else {
+    cart[productKey] = {
+      id: productId,
+      name: finalProductName,
+      price: productPrice,
+      quantity: 1,
+      totalPrice: productPrice,
+      aroma: selectedAroma
+    };
+    console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+  console.log(`Carrito actualizado en localStorage:`, cart);
+  showToast(finalProductName);
+}
+
   
 
 
