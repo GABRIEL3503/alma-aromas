@@ -1119,3 +1119,28 @@ baseRouter.get('/api/menuVersion', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+baseRouter.get('/api/config/minimo-mayorista', (req, res) => {
+  const db = ensureDatabaseConnection();
+  db.get('SELECT value FROM config WHERE key = ?', ['minimo_mayorista'], (err, row) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    const value = parseInt(row?.value || '40000', 10);
+    res.json({ success: true, value });
+  });
+});
+baseRouter.post('/api/config/minimo-mayorista', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { value } = req.body;
+  if (!value || isNaN(value)) {
+    return res.status(400).json({ success: false, error: 'Valor inválido' });
+  }
+
+  db.run(
+    'INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)',
+    ['minimo_mayorista', String(value)],
+    (err) => {
+      if (err) return res.status(500).json({ success: false, error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+

@@ -1011,21 +1011,33 @@ section.insertBefore(newItem, afterTitle || null);
             document.body.style.overflow = '';
           });
   
-        document.querySelector('.confirm-order-btn').addEventListener('click', function () {
+document.querySelector('.confirm-order-btn').addEventListener('click', function () {
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
-  const MINIMO_MAYORISTA = 40000;
-  const total = parseInt(document.getElementById('ca-total')?.textContent || '0', 10);
 
-  if (isMayorista && total < MINIMO_MAYORISTA) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Compra mínima requerida',
-      text: `El monto mínimo para pedidos mayoristas es de $${MINIMO_MAYORISTA.toLocaleString('es-AR')}.`,
+  fetch('/api/config/minimo-mayorista')
+    .then(res => res.json())
+    .then(data => {
+      const MINIMO_MAYORISTA = data.value || 40000;
+      const total = parseInt(document.getElementById('ca-total')?.textContent || '0', 10);
+
+      if (isMayorista && total < MINIMO_MAYORISTA) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Compra mínima requerida',
+          text: `El monto mínimo para pedidos mayoristas es de $${MINIMO_MAYORISTA.toLocaleString('es-AR')}.`,
+        });
+        return; // ⛔ NO continuar
+      }
+
+      confirmOrder(formattedDate); // ✅ continúa si pasa la validación
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al validar el mínimo',
+        text: 'No se pudo verificar el monto mínimo para mayoristas.',
+      });
     });
-    return; // ⛔ NO continuar
-  }
-
-  confirmOrder(formattedDate); // ✅ continúa si pasa la validación
 });
 
   
@@ -2432,7 +2444,40 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+const btnMinimo = document.getElementById('btn-minimo-mayorista');
 
+btnMinimo?.addEventListener('click', () => {
+  fetch('/api/config/minimo-mayorista')
+    .then(res => res.json())
+    .then(data => {
+      const current = data.value || 40000;
+
+      Swal.fire({
+        title: 'Editar monto mínimo mayorista',
+        input: 'number',
+        inputValue: current,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch('/api/config/minimo-mayorista', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: result.value })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Actualizado', 'Monto mínimo actualizado con éxito', 'success');
+              } else {
+                Swal.fire('Error', data.error || 'No se pudo guardar', 'error');
+              }
+            });
+        }
+      });
+    });
+});
 
 
 document.getElementById('btn-cerrar-popup')?.addEventListener('click', () => {
