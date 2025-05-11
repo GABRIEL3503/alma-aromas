@@ -863,7 +863,7 @@ section.insertBefore(newItem, afterTitle || null);
           Swal.fire('Pedido Confirmado', 'Tu pedido ha sido enviado con éxito.', 'success');
 
           // ✅ Enviar mensaje por WhatsApp
-          const whatsappNumber = "5492995951564";
+          const whatsappNumber = "5492996134693";
           const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
           window.open(whatsappLink, '_blank');
 
