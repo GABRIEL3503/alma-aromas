@@ -1252,9 +1252,20 @@ section.insertBefore(newItem, afterTitle || null);
       if (event.target.classList.contains('add-to-cart-btn')) {
         const productId = event.target.dataset.id;
         const productName = event.target.dataset.name;
-        const productPrice = parseFloat(event.target.dataset.price);
+const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+const productElement = event.target.closest('.menu-item');
+let productPrice = parseFloat(event.target.dataset.price); // default: minorista
 
-        addToCart(productId, productName, productPrice);
+if (isMayorista && productElement) {
+  const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
+  const raw = mayoristaText.replace(/\D/g, '');
+  const parsed = parseFloat(raw);
+  if (!isNaN(parsed)) {
+    productPrice = parsed;
+  }
+}
+
+addToCart(productId, productName, productPrice);
       }
     });
   });
