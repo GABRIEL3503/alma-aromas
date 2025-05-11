@@ -1167,6 +1167,16 @@ section.insertBefore(newItem, afterTitle || null);
     }
   }
 
+  // Evento para manejar el clic en el botón "+"
+  document.body.addEventListener('click', function (event) {
+    if (event.target.classList.contains('add-to-cart-btn')) {
+      const productId = event.target.dataset.id;
+      const productName = event.target.dataset.name;
+      const productPrice = parseFloat(event.target.dataset.price);
+
+      addToCart(productId, productName, productPrice);
+    }
+  });
 
   function addToCart(productId, productName, productPrice) {
     let cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -1236,7 +1246,18 @@ section.insertBefore(newItem, afterTitle || null);
   
 
 
+  // Asignar el evento `click` una sola vez para evitar duplicados
+  document.addEventListener("DOMContentLoaded", function () {
+    document.body.addEventListener('click', function (event) {
+      if (event.target.classList.contains('add-to-cart-btn')) {
+        const productId = event.target.dataset.id;
+        const productName = event.target.dataset.name;
+        const productPrice = parseFloat(event.target.dataset.price);
 
+        addToCart(productId, productName, productPrice);
+      }
+    });
+  });
 
   // Función para mostrar la notificación con Toastify.js
   function showToast(productName) {
@@ -1970,29 +1991,7 @@ localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
     });
   }
   menuItemsPromise = loadMenuItems();
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.addEventListener('click', function (event) {
-    if (event.target.classList.contains('add-to-cart-btn')) {
-      const productId = event.target.dataset.id;
-      const productName = event.target.dataset.name;
 
-      const isMayorista = localStorage.getItem('mayorista_access') === 'true';
-      const productElement = event.target.closest('.menu-item');
-      let productPrice = parseFloat(event.target.dataset.price); // default: minorista
-
-      if (isMayorista && productElement) {
-        const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
-        const raw = mayoristaText.replace(/\D/g, '');
-        const parsed = parseFloat(raw);
-        if (!isNaN(parsed)) {
-          productPrice = parsed;
-        }
-      }
-
-      addToCart(productId, productName, productPrice);
-    }
-  });
-});
 });
 
 function showAnnouncementPopup(data) {
