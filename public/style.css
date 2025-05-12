@@ -356,7 +356,6 @@ option {
 }
 
 .footer-left {
-  margin-bottom: -60px;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -2550,4 +2549,7 @@ input[type="password"] {
 }
 #swal-username, #swal-password{
   width: 80%;
+}
+.ultimo-item{
+  margin-bottom: 240px;
 }
