@@ -2413,6 +2413,12 @@ document.addEventListener('DOMContentLoaded', function () {
 const expireAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
 localStorage.setItem(MAYORISTA_KEY, 'true');
 localStorage.setItem('mayorista_expire_at', expireAt.toString());
+const trigger = document.getElementById('btn-mayorista-toggle');
+if (trigger) {
+  trigger.textContent = 'Estás viendo precios como mayorista';
+  trigger.style.cursor = 'pointer';
+  trigger.removeAttribute('href');
+}
           document.getElementById('popup-mayorista').classList.add('hidden');
           Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas.', 'success');
 
