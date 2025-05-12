@@ -2356,18 +2356,7 @@ setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
 
 document.addEventListener('DOMContentLoaded', function () {
   const MAYORISTA_KEY = 'mayorista_access';
-  function isMayoristaValid() {
-  const access = localStorage.getItem(MAYORISTA_KEY) === 'true';
-  const expiry = parseInt(localStorage.getItem('mayorista_expiry') || '0', 10);
-  if (!access || Date.now() > expiry) {
-    localStorage.removeItem(MAYORISTA_KEY);
-    localStorage.removeItem('mayorista_expiry');
-    return false;
-  }
-  return true;
-}
-
-const isMayorista = isMayoristaValid();
+  const isMayorista = localStorage.getItem(MAYORISTA_KEY) === 'true';
   const isAdmin = !!localStorage.getItem('jwt_alma-aromas');  // 👈 admin se detecta por token JWT
 
   // Mostrar precios mayoristas si es admin o mayorista
@@ -2396,12 +2385,8 @@ const isMayorista = isMayoristaValid();
       .then(res => res.json())
       .then(data => {
         const currentPassword = data.password?.trim();
- if (inputPass === currentPassword) {
-  const oneWeekFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
-  localStorage.setItem(MAYORISTA_KEY, 'true');
-  localStorage.setItem('mayorista_expiry', oneWeekFromNow.toString());
-  applyPriceVisibility();
-  updateMayoristaBanner();
+        if (inputPass === currentPassword) {
+          localStorage.setItem(MAYORISTA_KEY, 'true');
           document.getElementById('popup-mayorista').classList.add('hidden');
           Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas.', 'success');
 
