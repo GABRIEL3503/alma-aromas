@@ -959,7 +959,7 @@ section.insertBefore(newItem, afterTitle || null);
                   <label class="contenedor radio">
                     Retiro en el local <input type="radio" name="delivery-method" value="pickup" checked> 
                   </label>
-                  <a href="https://maps.app.goo.gl/BBLqgUif95mKvjjr6"><p>Poma N°1448 Pueblo Nuevo</p></a>
+                  <a href="https://maps.app.goo.gl/pHPUvaBK8tGC21RC9"><p>Poma N°1448 Pueblo Nuevo</p></a>
                   <label class="contenedor radio">
                     Envío a domicilio <input type="radio" name="delivery-method" value="delivery"> 
                   </label>
