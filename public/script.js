@@ -58,28 +58,42 @@ function formatPrice(value) {
 
 function checkAuthentication() {
   const token = localStorage.getItem('jwt_alma-aromas');
+  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
   const cartButton = document.getElementById('cart-button');
   const parallax = document.querySelector('.parallax-container');
 
-  if (token) {
-    document.querySelectorAll('.auth-required').forEach((elem) => {
-      elem.style.display = 'inline-block';
-    });
+  const isAdmin = !!token;
+
+  if (isAdmin) {
+    document.querySelectorAll('.auth-required').forEach(elem => elem.style.display = 'inline-block');
     document.querySelector('.container-botones').style.display = '';
     if (parallax) parallax.style.display = 'none';
-
     if (cartButton) cartButton.style.display = 'none';
-
-    // ✅ Mostrar precios mayoristas si es admin (logueado)
-    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
   } else {
-    document.querySelectorAll('.auth-required').forEach((elem) => {
-      elem.style.display = 'none';
-    });
+    document.querySelectorAll('.auth-required').forEach(elem => elem.style.display = 'none');
     document.querySelector('.container-botones').style.display = 'none';
     if (parallax) parallax.style.display = '';
-
     if (cartButton) cartButton.style.display = 'flex';
+  }
+
+  if (isAdmin || isMayorista) {
+    document.querySelectorAll('.item-price-mayorista').forEach(el => el.style.display = 'block');
+  }
+
+  if (isMayorista && !isAdmin) {
+    document.querySelectorAll('.item-price').forEach(el => {
+      const priceText = el.firstChild;
+      if (priceText && priceText.nodeType === Node.TEXT_NODE) {
+        priceText.textContent = '';
+      }
+    });
+  }
+
+  const trigger = document.getElementById('btn-mayorista-toggle');
+  if (trigger && isMayorista) {
+    trigger.textContent = 'Estás viendo precios como mayorista';
+    trigger.style.cursor = 'pointer';
+    trigger.removeAttribute('href');
   }
 }
 
