@@ -635,7 +635,17 @@ section.insertBefore(newItem, afterTitle || null);
   
     
     });
-  
+  const allSections = document.querySelectorAll('.menu-section');
+const lastSection = allSections[allSections.length - 1];
+
+if (lastSection) {
+  const items = lastSection.querySelectorAll('.menu-item');
+  if (items.length > 0) {
+    items.forEach(el => el.classList.remove('ultimo-item')); // limpiar clase por si acaso
+    items[items.length - 1].classList.add('ultimo-item');     // marcar último de última sección
+  }
+}
+
     checkAuthentication();
     const tipo = localStorage.getItem('lastCreatedItemTipo');
     const grupo = localStorage.getItem('lastCreatedItemGrupo');
