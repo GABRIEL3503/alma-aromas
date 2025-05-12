@@ -57,12 +57,20 @@ function formatPrice(value) {
 }
 
 function checkAuthentication() {
+  // 🔐 Validar expiración de sesión mayorista
+  const expireAt = parseInt(localStorage.getItem('mayorista_expire_at'), 10);
+  if (localStorage.getItem('mayorista_access') === 'true') {
+    if (!expireAt || Date.now() > expireAt) {
+      localStorage.removeItem('mayorista_access');
+      localStorage.removeItem('mayorista_expire_at');
+    }
+  }
+
   const token = localStorage.getItem('jwt_alma-aromas');
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+  const isAdmin = !!token;
   const cartButton = document.getElementById('cart-button');
   const parallax = document.querySelector('.parallax-container');
-
-  const isAdmin = !!token;
 
   if (isAdmin) {
     document.querySelectorAll('.auth-required').forEach(elem => elem.style.display = 'inline-block');
@@ -96,6 +104,8 @@ function checkAuthentication() {
     trigger.removeAttribute('href');
   }
 }
+
+
 
 
 // Función para actualizar la página
@@ -2400,7 +2410,9 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         const currentPassword = data.password?.trim();
         if (inputPass === currentPassword) {
-          localStorage.setItem(MAYORISTA_KEY, 'true');
+const expireAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
+localStorage.setItem(MAYORISTA_KEY, 'true');
+localStorage.setItem('mayorista_expire_at', expireAt.toString());
           document.getElementById('popup-mayorista').classList.add('hidden');
           Swal.fire('Acceso concedido', 'Ahora puedes ver precios mayoristas.', 'success');
 
