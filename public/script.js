@@ -863,7 +863,7 @@ section.insertBefore(newItem, afterTitle || null);
           Swal.fire('Pedido Confirmado', 'Tu pedido ha sido enviado con éxito.', 'success');
 
           // ✅ Enviar mensaje por WhatsApp
-          const whatsappNumber = "5492996134693";
+          const whatsappNumber = "5492994523800";
           const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
           window.open(whatsappLink, '_blank');
 
@@ -959,7 +959,7 @@ section.insertBefore(newItem, afterTitle || null);
                   <label class="contenedor radio">
                     Retiro en el local <input type="radio" name="delivery-method" value="pickup" checked> 
                   </label>
-                  <a href="https://maps.app.goo.gl/iJTstYQEXCi1fZ2V7"><p>Tucuman 232</p></a>
+                  <a href="https://maps.app.goo.gl/BBLqgUif95mKvjjr6"><p>Poma N°1448 Pueblo Nuevo</p></a>
                   <label class="contenedor radio">
                     Envío a domicilio <input type="radio" name="delivery-method" value="delivery"> 
                   </label>
