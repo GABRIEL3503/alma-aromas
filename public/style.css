@@ -356,7 +356,7 @@ option {
 }
 
 .footer-left {
-  margin-bottom: 19px;
+  margin-bottom: -60px;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -2294,6 +2294,7 @@ width: auto ;}
   transform: rotate(130deg);
 }
 #footer {
+  margin-top: 44px;
   font-family: "Nunito Sans", sans-serif;
   background-color: #262626;
   color: #fff;
