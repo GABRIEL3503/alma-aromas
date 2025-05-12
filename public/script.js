@@ -103,6 +103,11 @@ function checkAuthentication() {
     trigger.style.cursor = 'pointer';
     trigger.removeAttribute('href');
   }
+  const toggleBtn = document.getElementById('btn-mayorista-toggle');
+if (toggleBtn) {
+  toggleBtn.style.display = isAdmin ? 'none' : '';
+}
+
 }
 
 
