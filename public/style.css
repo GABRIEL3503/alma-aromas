@@ -843,9 +843,9 @@ h2 span {
 } */
 
 .porciones-title {
-  font-size: 48px;
-  margin-top: -58px;
-  font-weight: 400;
+font-size: 64px;
+    margin-top: -58px;
+    font-weight: 900;
 }
 
 .with-description {
