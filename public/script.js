@@ -738,7 +738,7 @@ function createMenuItem(item) {
         <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
         ${item.precio_mayorista ? `<div class="item-price-mayorista">$${formatPrice(item.precio_mayorista)}</div>` : ''}
       ` : ''}
-      <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
+${hasPrecio ? `<button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>` : ''}
     </div>
   `;
 
