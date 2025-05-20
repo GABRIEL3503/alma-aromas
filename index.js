@@ -322,6 +322,27 @@ baseRouter.get('/api/menu', (req, res) => {
       res.json({ data: rows });
   });
 });
+baseRouter.put('/api/menu/order', (req, res) => {
+  const db = ensureDatabaseConnection(); // Garantizar la conexión
+
+  const items = req.body.items; // Array de objetos con {id, position}
+
+  db.serialize(() => {
+    db.run('BEGIN TRANSACTION');
+    const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
+    items.forEach(item => {
+      stmt.run(item.position, item.id);
+    });
+    stmt.finalize();
+    db.run('COMMIT', err => {
+      if (err) {
+        console.error("Error al ejecutar la transacción:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ success: true });
+    });
+  });
+});
 
   
 baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
@@ -637,27 +658,6 @@ baseRouter.put('/api/sections/order', (req, res) => {
 });
 
 
-baseRouter.put('/api/menu/order', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
-
-  const items = req.body.items; // Array de objetos con {id, position}
-
-  db.serialize(() => {
-    db.run('BEGIN TRANSACTION');
-    const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
-    items.forEach(item => {
-      stmt.run(item.position, item.id);
-    });
-    stmt.finalize();
-    db.run('COMMIT', err => {
-      if (err) {
-        console.error("Error al ejecutar la transacción:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ success: true });
-    });
-  });
-});
 
 
 
