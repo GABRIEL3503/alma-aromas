@@ -579,72 +579,96 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
       containers[group.id] = groupContainer;
       return containers;
     }, {});
-    const sections = {};
-    menuData.forEach(item => {
-let parentGroup = item.parent_group;
-if (!parentGroup || !parentContainers[parentGroup]) {
-  console.warn(`Grupo inválido "${parentGroup}". Usando fallback 'aromas'.`, item);
-  parentGroup = 'aromas';
-}
-      const sectionKey = `${parentGroup}-${item.tipo}`;
-  
-      if (!sections[sectionKey]) {
-        const menuSection = document.createElement('div');
-        menuSection.className = 'menu-section';
-        menuSection.setAttribute('data-id', item.section_id);
-        menuSection.setAttribute('data-type', item.tipo);
-        menuSection.innerHTML = `
-          <h2 class="section-title">
-            <span>${capitalizeFirstLetter(item.tipo.toLowerCase())}</span>
-          </h2>
-        `;
-  
-        sections[sectionKey] = menuSection;
-        parentContainers[parentGroup].appendChild(menuSection);
-      }
-  
-      const newItem = createMenuItem(item);
-      newItem.dataset.id = item.id;
-      newItem.dataset.hidden = item.hidden;
-  
-      const menuItem = newItem.querySelector('.menu-item');
-  
-      const buttonsContainer = document.createElement('span');
-      buttonsContainer.className = 'admin-buttons-container';
-  
-      const editButton = menuItem.querySelector('.edit-button');
-      if (editButton) buttonsContainer.appendChild(editButton);
-  
-      const hideShowButton = document.createElement('button');
-      hideShowButton.className = 'hide-show-button auth-required';
-      hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
-      hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
-      buttonsContainer.appendChild(hideShowButton);
-  
-      menuItem.appendChild(buttonsContainer);
-  
-      if (item.hidden) {
-        newItem.style.display = isAuthenticated ? 'block' : 'none';
-        newItem.style.opacity = isAuthenticated ? '0.3' : '1';
-      }
-  
-// Insertar como primer hijo visible después del título
-const section = sections[sectionKey];
-const afterTitle = section.querySelector('h2.section-title')?.nextSibling;
-section.insertBefore(newItem, afterTitle || null);
-  
-    
-    });
-  const allSections = document.querySelectorAll('.menu-section');
+ const sections = {};
+
+// 🔥 Agrupar por sección primero
+const groupedItems = {};
+menuData.forEach(item => {
+  let parentGroup = item.parent_group;
+  if (!parentGroup || !parentContainers[parentGroup]) {
+    console.warn(`Grupo inválido "${parentGroup}". Usando fallback 'aromas'.`, item);
+    parentGroup = 'aromas';
+  }
+
+  const sectionKey = `${parentGroup}-${item.tipo}`;
+  if (!groupedItems[sectionKey]) {
+    groupedItems[sectionKey] = {
+      parentGroup,
+      tipo: item.tipo,
+      section_id: item.section_id,
+      items: []
+    };
+  }
+  groupedItems[sectionKey].items.push(item);
+});
+
+// 🔁 Renderizar ordenadamente por grupo/tipo
+Object.entries(groupedItems).forEach(([sectionKey, sectionData]) => {
+  const { parentGroup, tipo, section_id, items } = sectionData;
+
+  // 🔄 Crear section si no existe aún
+  if (!sections[sectionKey]) {
+    const menuSection = document.createElement('div');
+    menuSection.className = 'menu-section';
+    menuSection.setAttribute('data-id', section_id);
+    menuSection.setAttribute('data-type', tipo);
+    menuSection.innerHTML = `
+      <h2 class="section-title">
+        <span>${capitalizeFirstLetter(tipo.toLowerCase())}</span>
+      </h2>
+    `;
+    sections[sectionKey] = menuSection;
+    parentContainers[parentGroup].appendChild(menuSection);
+  }
+
+  const section = sections[sectionKey];
+
+  // ✅ Ordenar los ítems por posición antes de agregarlos
+  items.sort((a, b) => a.position - b.position);
+
+  items.forEach(item => {
+    const newItem = createMenuItem(item);
+    newItem.dataset.id = item.id;
+    newItem.dataset.hidden = item.hidden;
+
+    const menuItem = newItem.querySelector('.menu-item');
+
+    const buttonsContainer = document.createElement('span');
+    buttonsContainer.className = 'admin-buttons-container';
+
+    const editButton = menuItem.querySelector('.edit-button');
+    if (editButton) buttonsContainer.appendChild(editButton);
+
+    const hideShowButton = document.createElement('button');
+    hideShowButton.className = 'hide-show-button auth-required';
+    hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
+    hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
+    buttonsContainer.appendChild(hideShowButton);
+
+    menuItem.appendChild(buttonsContainer);
+
+    if (item.hidden) {
+      newItem.style.display = isAuthenticated ? 'block' : 'none';
+      newItem.style.opacity = isAuthenticated ? '0.3' : '1';
+    }
+
+    // ⛔️ InsertBefore invertía el orden original
+    section.appendChild(newItem); // ✅ Solución orden visual correcta
+  });
+});
+
+// ✅ Mantener marcado visual del último ítem
+const allSections = document.querySelectorAll('.menu-section');
 const lastSection = allSections[allSections.length - 1];
 
 if (lastSection) {
   const items = lastSection.querySelectorAll('.menu-item');
   if (items.length > 0) {
-    items.forEach(el => el.classList.remove('ultimo-item')); // limpiar clase por si acaso
-    items[items.length - 1].classList.add('ultimo-item');     // marcar último de última sección
+    items.forEach(el => el.classList.remove('ultimo-item'));
+    items[items.length - 1].classList.add('ultimo-item');
   }
 }
+
 
     checkAuthentication();
     const tipo = localStorage.getItem('lastCreatedItemTipo');
