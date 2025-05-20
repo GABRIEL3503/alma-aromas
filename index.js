@@ -348,22 +348,26 @@ baseRouter.put('/api/menu/order', (req, res) => {
 baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
-  const { nombre, precio, precio_mayorista, descripcion, tipo, stock, parent_group } = req.body;
-
-  if (!nombre || !precio || !descripcion || !tipo || !stock) {
-    return res.status(400).json({ error: "Faltan datos obligatorios." });
-  }
+  const {
+    nombre,
+    precio,
+    precio_mayorista,
+    descripcion,
+    tipo,
+    stock,
+    parent_group
+  } = req.body;
 
   let parsedStock = [];
   try {
     parsedStock = typeof stock === "string" ? JSON.parse(stock) : stock;
-    if (!Array.isArray(parsedStock)) throw new Error("Stock debe ser un array.");
-  } catch (err) {
-    return res.status(400).json({ error: "Formato inválido en el stock." });
+    if (!Array.isArray(parsedStock)) parsedStock = [];
+  } catch {
+    parsedStock = [];
   }
 
-  const precioEntero = parseInt(precio.toString().replace(/\./g, ""));
-  const precioMayoristaEntero = parseInt(precio_mayorista?.toString().replace(/\./g, "") || "0");
+  const precioEntero = precio ? parseInt(precio.toString().replace(/\./g, '')) : null;
+  const precioMayoristaEntero = precio_mayorista ? parseInt(precio_mayorista.toString().replace(/\./g, '')) : 0;
 
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
@@ -374,7 +378,7 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      const oldImgUrl = row ? row.img_url : null;
+      const oldImgUrl = row?.img_url || null;
       let newImgUrl = oldImgUrl;
 
       if (req.file) {
@@ -396,11 +400,20 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
 
       const query = `
         UPDATE menu_items 
-        SET nombre = ?, precio = ?, precio_mayorista = ?, descripcion = ?, tipo = ?, img_url = ?, parent_group = ?
-        WHERE id = ?`;
+        SET 
+          nombre = COALESCE(?, nombre),
+          precio = COALESCE(?, precio),
+          precio_mayorista = COALESCE(?, precio_mayorista),
+          descripcion = COALESCE(?, descripcion),
+          tipo = COALESCE(?, tipo),
+          img_url = COALESCE(?, img_url),
+          parent_group = COALESCE(?, parent_group)
+        WHERE id = ?
+      `;
+
       db.run(
         query,
-        [nombre, precioEntero, precioMayoristaEntero, descripcion, tipo, newImgUrl, parent_group || "aromas", id],
+        [nombre, precioEntero, precioMayoristaEntero, descripcion, tipo, newImgUrl, parent_group, id],
         function (err) {
           if (err) {
             db.run("ROLLBACK");
@@ -421,21 +434,29 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
             const existingAromas = new Set(existingStock.map(({ aroma }) => aroma));
 
             const updateStockPromises = parsedStock.map(({ aroma, cantidad }) => {
+              if (!aroma) return Promise.resolve(); // saltear sin aroma
+
               if (existingAromas.has(aroma)) {
                 return new Promise((resolve, reject) => {
-                  db.run("UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND aroma = ?",
-                    [cantidad, id, aroma], function (err) {
+                  db.run(
+                    "UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND aroma = ?",
+                    [cantidad, id, aroma],
+                    function (err) {
                       if (err) return reject(err);
                       resolve();
-                    });
+                    }
+                  );
                 });
               } else {
                 return new Promise((resolve, reject) => {
-                  db.run("INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)",
-                    [id, aroma, cantidad], function (err) {
+                  db.run(
+                    "INSERT INTO stock_items (menu_item_id, aroma, cantidad) VALUES (?, ?, ?)",
+                    [id, aroma, cantidad],
+                    function (err) {
                       if (err) return reject(err);
                       resolve();
-                    });
+                    }
+                  );
                 });
               }
             });
