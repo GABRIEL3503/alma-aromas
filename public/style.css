@@ -556,7 +556,7 @@ h2 {
 
 h2 span {
   font-family: "Quicksand", sans-serif;
-;
+;text-align: center;
   text-transform: uppercase;
   display: flex;
   color: #fe8076;
