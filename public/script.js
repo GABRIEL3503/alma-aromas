@@ -738,7 +738,7 @@ function createMenuItem(item) {
         <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
         ${item.precio_mayorista ? `<div class="item-price-mayorista">$${formatPrice(item.precio_mayorista)}</div>` : ''}
       ` : ''}
-${hasPrecio ? `<button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>` : ''}
+      <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
     </div>
   `;
 
@@ -1365,37 +1365,34 @@ function addToCart(productId, productName, productPrice) {
   }
   // ✅ Inicializar stockArray en el ámbito global para asegurar su disponibilidad
   let stockArray = [];
-function updateMenuItemDOM(data) {
-  const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
-  if (!el) return;
-
-  el.querySelector('.item-title')?.textContent = data.nombre;
-  el.querySelector('.item-description')?.textContent = data.descripcion;
-
-  const priceSpan = el.querySelector('.item-price');
-  if (priceSpan && typeof data.precio === 'number' && !isNaN(data.precio)) {
-    priceSpan.textContent = `$${formatPrice(data.precio)}`;
-  }
-
-  const img = el.querySelector('.item-header img');
-  if (img && data.img_url) {
-    const currentSrc = img.getAttribute('src');
-    const newSrc = data.img_url;
-
-    if (!currentSrc.endsWith(newSrc)) {
-      img.classList.add('fade-transition');
-      img.style.opacity = 0;
-
-      img.onload = () => {
-        img.style.opacity = 1;
-        img.classList.remove('fade-transition');
-      };
-
-      img.setAttribute('src', newSrc);
+  function updateMenuItemDOM(data) {
+    const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
+    if (!el) return;
+  
+    el.querySelector('.item-title').textContent = data.nombre;
+    el.querySelector('.item-price').textContent = `$${formatPrice(data.precio)}`;
+    el.querySelector('.item-description').textContent = data.descripcion;
+  
+    const img = el.querySelector('.item-header img');
+    if (img && data.img_url) {
+      const currentSrc = img.getAttribute('src');
+      const newSrc = data.img_url;
+  
+      // Verificamos si la imagen realmente cambió (por nombre o timestamp)
+      if (!currentSrc.endsWith(newSrc)) {
+        img.classList.add('fade-transition');
+        img.style.opacity = 0;
+  
+        img.onload = () => {
+          img.style.opacity = 1;
+          img.classList.remove('fade-transition');
+        };
+  
+        img.setAttribute('src', newSrc);
+      }
     }
   }
-}
-
+  
   
   document.body.addEventListener('click', async function (event) {
     if (event.target.classList.contains('edit-button')) {
