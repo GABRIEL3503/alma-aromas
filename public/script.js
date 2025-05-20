@@ -726,72 +726,74 @@ if (lastSection) {
   
   
 
-  function createMenuItem(item) {
-    const imageUrl = item.img_url || '';
-    let imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
-  
-    const priceAndButton = `
-        <div class="price-button-container">
-          <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}          ${item.precio_mayorista ? `<div class="item-price-mayorista">$${formatPrice(item.precio_mayorista)}</div>` : ''}
-</span>
+function createMenuItem(item) {
+  const imageUrl = item.img_url || '';
+  const imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
 
-          <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
-        </div>
-    `;
-  
-    const contenedorItems = document.createElement('span');
-    contenedorItems.className = 'contenedor-items';
-  
-    const newItem = document.createElement('div');
-    newItem.className = 'menu-item';
-    newItem.dataset.id = item.id;
-  
-    newItem.innerHTML = `
-        <div class="item-header">${imgTag}</div>
-        <div class="item-content">
-            <h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre}</h3>
-            ${priceAndButton}
-            <p class="item-description">${item.descripcion}</p>
-        </div>
-    `;
-  
-    const editButton = document.createElement('button');
-    editButton.classList.add('edit-button', 'auth-required');
-    editButton.textContent = 'Editar';
-    newItem.appendChild(editButton);
-  
-    const aromaWrapper = document.createElement('div');
-    aromaWrapper.className = 'aroma-wrapper';
-  
-    const aromaDropdown = document.createElement('select');
-    aromaDropdown.className = 'aroma-select';
-    aromaDropdown.innerHTML = `<option value="" disabled selected>Aroma</option>`;
-  
-    fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${item.id}/talles`)
-      .then(response => response.json())
-      .then(stockData => {
-        const stock = stockData.data || {};
-        Object.entries(stock).forEach(([aroma, cantidad]) => {
-          if (cantidad > 0) {
-            const option = document.createElement('option');
-            option.value = aroma;
-            option.textContent = aroma;
-            aromaDropdown.appendChild(option);
-          }
-        });
-  
-        aromaWrapper.appendChild(aromaDropdown);
-        newItem.querySelector('.item-content').appendChild(aromaWrapper);
-      })
-      .catch(err => {
-        console.error('Error fetching stock data:', err);
+  const hasPrecio = typeof item.precio === 'number' && !isNaN(item.precio);
+
+  const priceAndButton = `
+    <div class="price-button-container">
+      ${hasPrecio ? `
+        <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
+        ${item.precio_mayorista ? `<div class="item-price-mayorista">$${formatPrice(item.precio_mayorista)}</div>` : ''}
+      ` : ''}
+      <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
+    </div>
+  `;
+
+  const contenedorItems = document.createElement('span');
+  contenedorItems.className = 'contenedor-items';
+
+  const newItem = document.createElement('div');
+  newItem.className = 'menu-item';
+  newItem.dataset.id = item.id;
+
+  newItem.innerHTML = `
+    <div class="item-header">${imgTag}</div>
+    <div class="item-content">
+      <h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre}</h3>
+      ${priceAndButton}
+      <p class="item-description">${item.descripcion || ''}</p>
+    </div>
+  `;
+
+  const editButton = document.createElement('button');
+  editButton.classList.add('edit-button', 'auth-required');
+  editButton.textContent = 'Editar';
+  newItem.appendChild(editButton);
+
+  const aromaWrapper = document.createElement('div');
+  aromaWrapper.className = 'aroma-wrapper';
+
+  const aromaDropdown = document.createElement('select');
+  aromaDropdown.className = 'aroma-select';
+  aromaDropdown.innerHTML = `<option value="" disabled selected>Aroma</option>`;
+
+  fetch(`https://octopus-app.com.ar/alma-aromas/api/menu/${item.id}/talles`)
+    .then(response => response.json())
+    .then(stockData => {
+      const stock = stockData.data || {};
+      Object.entries(stock).forEach(([aroma, cantidad]) => {
+        if (cantidad > 0) {
+          const option = document.createElement('option');
+          option.value = aroma;
+          option.textContent = aroma;
+          aromaDropdown.appendChild(option);
+        }
       });
-  
-    contenedorItems.appendChild(newItem);
-  
-    return contenedorItems;
-  }
-  
+
+      aromaWrapper.appendChild(aromaDropdown);
+      newItem.querySelector('.item-content').appendChild(aromaWrapper);
+    })
+    .catch(err => {
+      console.error('Error fetching stock data:', err);
+    });
+
+  contenedorItems.appendChild(newItem);
+  return contenedorItems;
+}
+
 
   // Crear el overlay si no existe
   let overlay = document.querySelector('.overlay');
