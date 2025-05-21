@@ -1365,53 +1365,33 @@ function addToCart(productId, productName, productPrice) {
   }
   // ✅ Inicializar stockArray en el ámbito global para asegurar su disponibilidad
   let stockArray = [];
-function updateMenuItemDOM(data) {
-  const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
-  if (!el) return;
-
-  el.querySelector('.item-title').textContent = data.nombre;
-
-  const priceEl = el.querySelector('.item-price');
-  if (priceEl) {
-    if (typeof data.precio === 'number' && !isNaN(data.precio)) {
-      priceEl.textContent = `$${formatPrice(data.precio)}`;
-    } else {
-      priceEl.remove();
+  function updateMenuItemDOM(data) {
+    const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
+    if (!el) return;
+  
+    el.querySelector('.item-title').textContent = data.nombre;
+    el.querySelector('.item-price').textContent = `$${formatPrice(data.precio)}`;
+    el.querySelector('.item-description').textContent = data.descripcion;
+  
+    const img = el.querySelector('.item-header img');
+    if (img && data.img_url) {
+      const currentSrc = img.getAttribute('src');
+      const newSrc = data.img_url;
+  
+      // Verificamos si la imagen realmente cambió (por nombre o timestamp)
+      if (!currentSrc.endsWith(newSrc)) {
+        img.classList.add('fade-transition');
+        img.style.opacity = 0;
+  
+        img.onload = () => {
+          img.style.opacity = 1;
+          img.classList.remove('fade-transition');
+        };
+  
+        img.setAttribute('src', newSrc);
+      }
     }
   }
-
-  el.querySelector('.item-description').textContent = data.descripcion;
-
-  const mayoristaEl = el.querySelector('.item-price-mayorista');
-  if (mayoristaEl) {
-    if (typeof data.precio_mayorista === 'number' && data.precio_mayorista > 0) {
-      mayoristaEl.textContent = `$${formatPrice(data.precio_mayorista)}`;
-      mayoristaEl.style.display = 'block';
-    } else {
-      mayoristaEl.remove();
-    }
-  }
-
-  const img = el.querySelector('.item-header img');
-  if (img && data.img_url) {
-    const currentSrc = img.getAttribute('src');
-    const newSrc = data.img_url;
-
-    // Verificamos si la imagen realmente cambió (por nombre o timestamp)
-    if (!currentSrc.endsWith(newSrc)) {
-      img.classList.add('fade-transition');
-      img.style.opacity = 0;
-
-      img.onload = () => {
-        img.style.opacity = 1;
-        img.classList.remove('fade-transition');
-      };
-
-      img.setAttribute('src', newSrc);
-    }
-  }
-}
-
   
   
   document.body.addEventListener('click', async function (event) {
@@ -1606,9 +1586,7 @@ const itemPrice = priceTextNode && priceTextNode.nodeType === Node.TEXT_NODE
         }).then(async (result) => {
           if (result.isConfirmed) {
             const nombre = document.getElementById('swal-input1').value.trim();
-const precioRaw = document.getElementById('swal-input2').value.trim();
-const precio = precioRaw ? parseInt(precioRaw.replace(/\./g, ''), 10) : '';
-formData.append('precio', precio);
+            const precio = parseInt(document.getElementById('swal-input2').value.replace(/\./g, ''), 10);
             const descripcion = document.getElementById('swal-input4').value.trim();
             const tipo = document.getElementById('swal-input3').value;
             const parent_group = document.getElementById('swal-parent-group').value;
@@ -1619,6 +1597,7 @@ formData.append('precio', precio);
         
             const formData = new FormData();
             formData.append('nombre', nombre);
+            formData.append('precio', precio);
             const precioMayorista = document.getElementById('swal-input-precio-mayorista').value.trim();
             formData.append('precio_mayorista', precioMayorista.replace(/\./g, ''));
             
