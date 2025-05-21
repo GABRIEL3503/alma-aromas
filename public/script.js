@@ -1365,33 +1365,49 @@ function addToCart(productId, productName, productPrice) {
   }
   // ✅ Inicializar stockArray en el ámbito global para asegurar su disponibilidad
   let stockArray = [];
-  function updateMenuItemDOM(data) {
-    const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
-    if (!el) return;
-  
-    el.querySelector('.item-title').textContent = data.nombre;
-    el.querySelector('.item-price').textContent = `$${formatPrice(data.precio)}`;
-    el.querySelector('.item-description').textContent = data.descripcion;
-  
-    const img = el.querySelector('.item-header img');
-    if (img && data.img_url) {
-      const currentSrc = img.getAttribute('src');
-      const newSrc = data.img_url;
-  
-      // Verificamos si la imagen realmente cambió (por nombre o timestamp)
-      if (!currentSrc.endsWith(newSrc)) {
-        img.classList.add('fade-transition');
-        img.style.opacity = 0;
-  
-        img.onload = () => {
-          img.style.opacity = 1;
-          img.classList.remove('fade-transition');
-        };
-  
-        img.setAttribute('src', newSrc);
-      }
+function updateMenuItemDOM(data) {
+  const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
+  if (!el) return;
+
+  el.querySelector('.item-title')?.textContent = data.nombre;
+
+  const itemPriceEl = el.querySelector('.item-price');
+  if (itemPriceEl && typeof data.precio === 'number' && !isNaN(data.precio)) {
+    itemPriceEl.textContent = `$${formatPrice(data.precio)}`;
+  } else if (itemPriceEl) {
+    itemPriceEl.remove();
+  }
+
+  const itemDescriptionEl = el.querySelector('.item-description');
+  if (itemDescriptionEl) itemDescriptionEl.textContent = data.descripcion;
+
+  const itemMayoristaEl = el.querySelector('.item-price-mayorista');
+  if (itemMayoristaEl && typeof data.precio_mayorista === 'number' && data.precio_mayorista > 0) {
+    itemMayoristaEl.textContent = `$${formatPrice(data.precio_mayorista)}`;
+    itemMayoristaEl.style.display = 'block';
+  } else if (itemMayoristaEl) {
+    itemMayoristaEl.remove();
+  }
+
+  const img = el.querySelector('.item-header img');
+  if (img && data.img_url) {
+    const currentSrc = img.getAttribute('src');
+    const newSrc = data.img_url;
+
+    if (!currentSrc.endsWith(newSrc)) {
+      img.classList.add('fade-transition');
+      img.style.opacity = 0;
+
+      img.onload = () => {
+        img.style.opacity = 1;
+        img.classList.remove('fade-transition');
+      };
+
+      img.setAttribute('src', newSrc);
     }
   }
+}
+
   
   
   document.body.addEventListener('click', async function (event) {
