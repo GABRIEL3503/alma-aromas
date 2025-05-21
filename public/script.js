@@ -1606,7 +1606,9 @@ const itemPrice = priceTextNode && priceTextNode.nodeType === Node.TEXT_NODE
         }).then(async (result) => {
           if (result.isConfirmed) {
             const nombre = document.getElementById('swal-input1').value.trim();
-            const precio = parseInt(document.getElementById('swal-input2').value.replace(/\./g, ''), 10);
+const precioRaw = document.getElementById('swal-input2').value.trim();
+const precio = precioRaw ? parseInt(precioRaw.replace(/\./g, ''), 10) : '';
+formData.append('precio', precio);
             const descripcion = document.getElementById('swal-input4').value.trim();
             const tipo = document.getElementById('swal-input3').value;
             const parent_group = document.getElementById('swal-parent-group').value;
@@ -1617,7 +1619,6 @@ const itemPrice = priceTextNode && priceTextNode.nodeType === Node.TEXT_NODE
         
             const formData = new FormData();
             formData.append('nombre', nombre);
-            formData.append('precio', precio);
             const precioMayorista = document.getElementById('swal-input-precio-mayorista').value.trim();
             formData.append('precio_mayorista', precioMayorista.replace(/\./g, ''));
             
