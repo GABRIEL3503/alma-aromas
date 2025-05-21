@@ -1369,24 +1369,27 @@ function updateMenuItemDOM(data) {
   const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
   if (!el) return;
 
-  el.querySelector('.item-title')?.textContent = data.nombre;
+  el.querySelector('.item-title').textContent = data.nombre;
 
-  const itemPriceEl = el.querySelector('.item-price');
-  if (itemPriceEl && typeof data.precio === 'number' && !isNaN(data.precio)) {
-    itemPriceEl.textContent = `$${formatPrice(data.precio)}`;
-  } else if (itemPriceEl) {
-    itemPriceEl.remove();
+  const priceEl = el.querySelector('.item-price');
+  if (priceEl) {
+    if (typeof data.precio === 'number' && !isNaN(data.precio)) {
+      priceEl.textContent = `$${formatPrice(data.precio)}`;
+    } else {
+      priceEl.remove();
+    }
   }
 
-  const itemDescriptionEl = el.querySelector('.item-description');
-  if (itemDescriptionEl) itemDescriptionEl.textContent = data.descripcion;
+  el.querySelector('.item-description').textContent = data.descripcion;
 
-  const itemMayoristaEl = el.querySelector('.item-price-mayorista');
-  if (itemMayoristaEl && typeof data.precio_mayorista === 'number' && data.precio_mayorista > 0) {
-    itemMayoristaEl.textContent = `$${formatPrice(data.precio_mayorista)}`;
-    itemMayoristaEl.style.display = 'block';
-  } else if (itemMayoristaEl) {
-    itemMayoristaEl.remove();
+  const mayoristaEl = el.querySelector('.item-price-mayorista');
+  if (mayoristaEl) {
+    if (typeof data.precio_mayorista === 'number' && data.precio_mayorista > 0) {
+      mayoristaEl.textContent = `$${formatPrice(data.precio_mayorista)}`;
+      mayoristaEl.style.display = 'block';
+    } else {
+      mayoristaEl.remove();
+    }
   }
 
   const img = el.querySelector('.item-header img');
@@ -1394,6 +1397,7 @@ function updateMenuItemDOM(data) {
     const currentSrc = img.getAttribute('src');
     const newSrc = data.img_url;
 
+    // Verificamos si la imagen realmente cambió (por nombre o timestamp)
     if (!currentSrc.endsWith(newSrc)) {
       img.classList.add('fade-transition');
       img.style.opacity = 0;
