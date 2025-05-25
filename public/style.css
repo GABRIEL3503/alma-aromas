@@ -2218,7 +2218,9 @@ width: auto ;}
   .item-content {
     width: 30%;
   }
-
+.aroma-select {
+  font-size: 20px;
+}
 
   #scrollToTopButton img {
 
