@@ -2276,7 +2276,8 @@ width: auto ;}
   }
 
   .navbar-logo img {
-    width: 100px!important;
+    height: 60px;
+    width: 60px!important;
   }
   .price-button-container .add-to-cart-btn {
     font-size: 12px!important;
