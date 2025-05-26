@@ -2025,284 +2025,6 @@ input[type="radio"]:checked::before {
   }
 }
 
-@media (min-width: 1024px) {
-  .navbar-logo p{
-    margin-top: 30px;
-    font-size: 20px;}
-  .navbar-links {
-    right: 3px;
-    padding: 80px 30px;
-    width: 36vw;
-
-    top: 0px;
-  }
-
-  .navbar-links img {
-    height: 47px;
-    width: 46px;
-  }
-.cart-item, .delivery-options label, .payment-options h4{
-  font-size: 20px;
-}
-
-input[type="radio"] {
-  transform: scale(1.6);}
-.quantity-btn, .quantity-input, .delivery-options a p, .delivery-options p , .cart-popup-content p, .payment-options label {
-  
- 
-  font-size: 18px!important;
-}
-.confirm-order-btn, .continue-shopping-btn {
-  height: 54px;
-  display: flex
-;
-  
-  padding: 8px 32px;
-  margin-top: 15px;
-  border-radius: 40px;
-  width: auto;
-}
-  .navbar-links a {
-    font-size: 20px!important;
-  }
-  .cart-popup-content h2, .fecha, .cart-popup-content h3 {
-font-size: 24px!important;}
-  .cart-popup-content {
-width: 600px!important;}
-  .parallax-container img {
-    width: 48vw;
-  }
-
-  .hamburger {
-    top: 28px!important;
-  }
-
-
-
-  .talle-select,
-  .color-select {
-    width: 100px!important;
-    font-size: 12px!important;
-  }
-
-  h2 span {
-    font-size: 20px!important;
-  }
-
-  .group-description {
-    font-size: 33px!important;
-  }
-
-  .aroma-select {
-    width: 120px;
-  }
-
-  .group-title {
-    font-size: 2rem!important;
-  }
-.group-header .parallax-container{
-  margin-bottom: 0px!important;
-}
-.menu-section {
-  margin-top: 20px;
-}
-  #cart-button img {
-    width: 24px!important;
-  }
-
-  .floating-cart-btn {
-    padding: 4px 6px!important;
-    font-size: 16px!important;
-  }
-
-  div:where(.swal2-container) img:where(.swal2-image) {
-    max-width: 234px!important;
-  }
-
-  .swal2-popup {
-    height: 580px!important;
-  }
-
-  .swal2-confirm {
-    padding: 10px 26px!important;
-    font-size: 13px!important;
-  }
-
-  #swal2-title {
-    font-size: 20px!important;
-  }
-
-  .swal2-html-container p {
-    font-size: 14px!important;
-  }
-
-  .group-image {
-    width: 30vw!important;
-
-  }
-
-  .check {
-    gap: 20px;
-    margin-top: 15px;
-    display: flex;
-    font-size: 19px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  div:where(.swal2-container) div:where(.swal2-actions) {
-    margin: 0px!important;
-  }
-
-  .edit-button {
-    padding: 10px 34px;
-  }
-
-  .swal2-popup {
-    width: 50vh;
-    height: 72vh;
-  }
-
-  .swal2-title {
-    font-size: 18px;
-  }
-
-  .swal2-input {
-    margin: 10px;
-    width: 70%;
-    height: 30px;
-    padding: 0 0.75em;
-    font-size: 12px;
-  }
-
-  .section-title {
-    font-size: 30px;
-
-  }
-.puff-in-center{
-  margin: 22px;
-}
-#btn-mayorista-toggle {
-  font-size: 20px;
-}
-  .image-container img {
-    width: 200px;
-    object-fit: cover;
-  }
-
-  .item-header img {
-    height: auto;
-    width: 20vw;
-  }
-
-  .admin-buttons-container {
-width: auto ;}
-
-  .menu-item {
-    display: flex
-;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-evenly;
-        gap: 4px;
-        width: 90%;
-  }
-#scrollToBottomButton{
-  margin-right: 0px;
-}
-  .item-title {
-    font-size: 18px;
-  }
-
-  .item-price {
-    font-size: 18px;
-    margin-top: -22px;
-  }
-
-  .item-description {
-    margin-top: 0px;
-    font-size: 16px;
-  }
-
-  .item-content {
-    width: 30%;
-  }
-.aroma-select {
-  font-size: 14px;
-}
-
-  #scrollToTopButton img {
-
-    width: 20px;
-    height: 20px;
-  }
-  #scrollToBottomButton img{
-     width: 20px;
-    height: 20px;
-  }
-
-  .footer-left img {
-    width: 80px!important;
-  }
-
-  .social-icons img {
-    width: 40px;
-  }
-
-
-  .footer-right img {
-    height: 80px;
-    width: 48px;
-  }
-
-  #icon {
-    width: 70%;
-    height: 80%;
-  }
-
-  button {
-    font-size: 12px;
-  }
-
-  #menufoot {
-    font-size: 18px;
-  }
-
-
-
-
-  .bottom-right {
-    bottom: 0;
-    right: 0;
-  }
-
-
-  .hamburger div {
-    width: 22px!important;
-    height: 4px!important;
-    margin: 2px 4px;
-    transition: 0.4s;
-  }
-
-  .navbar-logo img {
-    height: 60px;
-    width: 60px!important;
-  }
-  .price-button-container .add-to-cart-btn {
-    font-size: 12px!important;
-    border-radius: 50%!important;
-    padding: 7px 13px!important;
-  }
-  @media (min-width: 1024px) {
-.redes-iconos img{
-  width: 44px;
-}}
-.arrow-container img {
-  height: 34px;
-  width: 34px;
-}
-
-}
 
 .popup-anuncio{
   height: auto!important;
@@ -2580,4 +2302,303 @@ input[type="password"] {
 }
 .ultimo-item{
   margin-bottom: 240px;
+}
+@media (min-width: 1024px) {
+  .navbar-logo p{
+    margin-top: 30px;
+    font-size: 20px;}
+  .navbar-links {
+    right: 3px;
+    padding: 80px 30px;
+    width: 36vw;
+
+    top: 0px;
+  }
+
+  .navbar-links img {
+    height: 47px;
+    width: 46px;
+  }
+.cart-item, .delivery-options label, .payment-options h4{
+  font-size: 20px;
+}
+
+input[type="radio"] {
+  transform: scale(1.6);}
+.quantity-btn, .quantity-input, .delivery-options a p, .delivery-options p , .cart-popup-content p, .payment-options label {
+  
+ 
+  font-size: 18px!important;
+}
+.confirm-order-btn, .continue-shopping-btn {
+  height: 54px;
+  display: flex
+;
+  
+  padding: 8px 32px;
+  margin-top: 15px;
+  border-radius: 40px;
+  width: auto;
+}
+  .navbar-links a {
+    font-size: 20px!important;
+  }
+  .cart-popup-content h2, .fecha, .cart-popup-content h3 {
+font-size: 24px!important;}
+  .cart-popup-content {
+width: 600px!important;}
+  .parallax-container img {
+    width: 48vw;
+  }
+
+  .hamburger {
+    top: 28px!important;
+  }
+
+
+
+  .talle-select,
+  .color-select {
+    width: 100px!important;
+    font-size: 12px!important;
+  }
+
+  h2 span {
+    font-size: 20px!important;
+  }
+
+  .group-description {
+    font-size: 33px!important;
+  }
+
+  .aroma-select {
+    width: 120px;
+  }
+
+  .group-title {
+    font-size: 2rem!important;
+  }
+.group-header .parallax-container{
+  margin-bottom: 0px!important;
+}
+.menu-section {
+  margin-top: 20px;
+}
+  #cart-button img {
+    width: 24px!important;
+  }
+
+  .floating-cart-btn {
+    padding: 4px 6px!important;
+    font-size: 16px!important;
+  }
+
+  div:where(.swal2-container) img:where(.swal2-image) {
+    max-width: 234px!important;
+  }
+
+  .swal2-popup {
+    height: 580px!important;
+  }
+
+  .swal2-confirm {
+    padding: 10px 26px!important;
+    font-size: 13px!important;
+  }
+
+  #swal2-title {
+    font-size: 20px!important;
+  }
+
+  .swal2-html-container p {
+    font-size: 14px!important;
+  }
+
+  .group-image {
+    width: 30vw!important;
+
+  }
+
+  .check {
+    gap: 20px;
+    margin-top: 15px;
+    display: flex;
+    font-size: 19px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  div:where(.swal2-container) div:where(.swal2-actions) {
+    margin: 0px!important;
+  }
+
+  .edit-button {
+    padding: 10px 34px;
+  }
+
+  .swal2-popup {
+    width: 50vh;
+    height: 72vh;
+  }
+
+  .swal2-title {
+    font-size: 18px;
+  }
+
+  .swal2-input {
+    margin: 10px;
+    width: 70%;
+    height: 30px;
+    padding: 0 0.75em;
+    font-size: 12px;
+  }
+
+  .section-title {
+    font-size: 30px;
+
+  }
+.puff-in-center{
+  margin: 22px;
+}
+#btn-mayorista-toggle {
+  font-size: 20px;
+}
+  .image-container img {
+    width: 200px;
+    object-fit: cover;
+  }
+
+  .item-header img {
+    height: auto;
+    width: 20vw;
+  }
+
+  .admin-buttons-container {
+width: auto ;}
+
+  .menu-item {
+    display: flex
+;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-evenly;
+        gap: 4px;
+        width: 90%;
+  }
+#scrollToBottomButton{
+  margin-right: 0px;
+}
+  .item-title {
+    font-size: 18px;
+  }
+
+  .item-price {
+    font-size: 18px;
+    margin-top: -22px;
+  }
+
+  .item-description {
+    margin-top: 0px;
+    font-size: 16px;
+  }
+
+  .item-content {
+    width: 30%;
+  }
+.aroma-select {
+  font-size: 14px;
+}
+
+  #scrollToTopButton img {
+
+    width: 20px;
+    height: 20px;
+  }
+  #scrollToBottomButton img{
+     width: 20px;
+    height: 20px;
+  }
+
+  .footer-left img {
+    width: 40px!important;
+  }
+
+  #logo-fot{
+    width: 180px!important;
+  }
+.frase{
+  font-size: 1.4rem;
+}
+  .social-icons img {
+    width: 40px;
+  }
+
+
+  .footer-right img {
+    height: 80px;
+    width: 48px;
+  }
+
+  #icon {
+    width: 70%;
+    height: 80%;
+  }
+
+  button {
+    font-size: 12px;
+  }
+
+  #menufoot {
+    font-size: 18px;
+  }
+
+
+
+
+  .bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+
+
+  .hamburger div {
+    width: 22px!important;
+    height: 4px!important;
+    margin: 2px 4px;
+    transition: 0.4s;
+  }
+
+  .navbar-logo img {
+    height: 60px;
+    width: 60px!important;
+  }
+  .price-button-container .add-to-cart-btn {
+    font-size: 12px!important;
+    border-radius: 50%!important;
+    padding: 7px 13px!important;
+  }
+  @media (min-width: 1024px) {
+.redes-iconos img{
+  width: 44px;
+}}
+.arrow-container img {
+  height: 34px;
+  width: 34px;
+}
+.frase-container{
+  height: 100px;
+}
+.btn-conocenos {
+    padding: 8px 88px;
+    font-size: 1.1rem;
+}
+.logo-footer img {
+  width: 280px;
+}
+.footer-info p {
+  font-size: 1rem;
+}
+.logotip {
+  width: 124px;
+}
 }
