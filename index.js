@@ -715,7 +715,7 @@ baseRouter.get('/api/menu/:id', (req, res) => {
     db.all(
       `SELECT id, aroma, cantidad 
        FROM stock_items 
-       WHERE menu_item_id = ? AND cantidad > 0`,
+       WHERE menu_item_id = ?`,
       [id],
       (err, stock) => {
         if (err) {
