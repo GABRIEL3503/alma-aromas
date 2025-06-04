@@ -461,11 +461,11 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
               }
             });
 
-            parsedStock.forEach(({ aroma, cantidad }) => {
-              if (cantidad === 0) {
-                db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND aroma = ?", [id, aroma]);
-              }
-            });
+            // parsedStock.forEach(({ aroma, cantidad }) => {
+            //   if (cantidad === 0) {
+            //     db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND aroma = ?", [id, aroma]);
+            //   }
+            // });
 
             Promise.all(updateStockPromises)
               .then(() => {
