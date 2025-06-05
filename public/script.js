@@ -1238,7 +1238,7 @@ fetch('/alma-aromas/api/config/minimo-mayorista')
 
   function renderTotal(subtotal, deliveryPrice) {
     const total = subtotal + deliveryPrice;
-    const cartTotalElement = document.getElementById('cart-total');
+    const cartTotalElement = document.getElementById('ca-total');
     if (cartTotalElement) {
       cartTotalElement.textContent = formatPrice(total);  // ✅ Aplicamos el formato correcto
     }
