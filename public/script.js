@@ -1291,7 +1291,7 @@ function addToCart(productId, productName, productPrice) {
   const selectedAroma = aromaElement?.value || 'sin-aroma';
 
   const menuSection = productElement.closest('.menu-section');
-  const sectionName = menuSection ? menuSection.getAttribute('data-type') : '';
+const sectionName = menuSection?.querySelector('.section-title span')?.textContent.trim() || 'Otros';
 
   let mainTitle = '';
   let current = productElement.previousElementSibling;
@@ -1321,7 +1321,8 @@ function addToCart(productId, productName, productPrice) {
       price: productPrice,
       quantity: 1,
       totalPrice: productPrice,
-      aroma: selectedAroma
+      aroma: selectedAroma,
+      section: sectionName 
     };
     console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
   }
