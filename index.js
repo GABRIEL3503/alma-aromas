@@ -1025,7 +1025,7 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
         FROM order_items oi
         LEFT JOIN stock_items si 
           ON oi.product_id = si.menu_item_id 
-          AND oi.aroma = si.aroma
+  AND TRIM(oi.aroma) = TRIM(si.aroma)
         WHERE oi.order_id = ? AND oi.status = 'pending'
       `, [id], (err, rows) => {
         if (err) reject(err);
