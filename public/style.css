@@ -2522,6 +2522,15 @@ width: auto ;}
   .footer-left img {
     width: 40px!important;
   }
+  .item-price-mayorista{
+    color: #592520;
+    letter-spacing: -0.5px;
+    margin-left: 286px;
+    font-family: "Quicksand", sans-serif;
+    font-size: 64px;
+    font-weight: 500;
+    font-style: normal;
+  }
 
   #logo-fot{
     width: 180px!important;
