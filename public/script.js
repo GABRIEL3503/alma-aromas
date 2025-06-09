@@ -1114,18 +1114,48 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
       })
         .then(res => res.json())
         .then(data => {
-          if (!data.success) {
-            const errores = data.insufficient.map(item =>
-              `• ${item.aroma} (Stock: ${item.available}, Solicitado: ${item.requested})`
-            ).join('<br>');
+         if (!data.success) {
+  const errores = data.insufficient.map(item =>
+    `• ${item.aroma} (Stock: ${item.available}, Solicitado: ${item.requested})`
+  ).join('<br>');
 
-            Swal.fire({
-              icon: 'error',
-              title: 'Stock insuficiente',
-              html: `No hay suficiente stock para algunos productos:<br><br>${errores}`,
-            });
-            return; // ⛔ Cancelar confirmación
-          }
+  return Swal.fire({
+    icon: 'error',
+    title: 'Stock insuficiente',
+    html: `
+      <div class="swal-stock-html">
+        <p>No hay suficiente stock para algunos productos:</p>
+        <div class="swal-stock-list">${errores}</div>
+        <p class="swal-stock-ajuste">Podés ajustar la cantidad desde tu carrito.</p>
+      </div>
+    `,
+    customClass: {
+      popup: 'swal-stock-popup',
+      title: 'swal-stock-title',
+      htmlContainer: 'swal-stock-container',
+      confirmButton: 'swal-stock-confirm-btn'
+    }
+  }).then(() => {
+    document.querySelectorAll('.cart-item').forEach(item => {
+      item.classList.remove('stock-error');
+      const msg = item.querySelector('.stock-error-msg');
+      if (msg) msg.remove();
+    });
+
+    data.insufficient.forEach(({ product_id, aroma }) => {
+      const selector = `.cart-item[data-id="${product_id}"][data-aroma="${aroma || 'sin-aroma'}"]`;
+      const cartItem = document.querySelector(selector);
+      if (cartItem) {
+        cartItem.classList.add('stock-error');
+        const msg = document.createElement('span');
+        msg.className = 'stock-error-msg';
+        msg.textContent = 'Stock insuficiente';
+        cartItem.appendChild(msg);
+      }
+    });
+  });
+}
+
 
           // ✅ Todo OK
           confirmOrder(formattedDate);

@@ -2160,6 +2160,42 @@ input[type="radio"]:checked::before {
   font-weight: 700;
   color: #FDFFFF;
 }
+
+
+.swal-stock-popup {
+  max-width: 500px;
+}
+
+.swal-stock-title {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.swal-stock-container {
+  text-align: left;
+  font-size: 1rem;
+}
+
+.swal-stock-list {
+  background: #fff3f3;
+  border-left: 4px solid #e74c3c;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-family: monospace;
+  white-space: pre-line;
+}
+
+.swal-stock-ajuste {
+  font-size: 0.95em;
+  margin-top: 10px;
+  color: #555;
+}
+
+.swal-stock-confirm-btn {
+  background-color: #e74c3c !important;
+  color: white !important;
+}
+
 @media (max-width: 768px) {
 
 
