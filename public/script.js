@@ -1126,7 +1126,7 @@ const errores = data.insufficient.map(item => {
 
   return `
     • <span class="stock-product">${name}</span> - 
-      <span class="stock-aroma">${item.aroma}</span> 
+      <span class="stock-aroma">Aroma: ${item.aroma}</span> 
       <span class="stock-labeluno">Disponible: ${item.available}</span> 
       <span class="stock-label">Solicitado: ${item.requested}</span>
   `;
