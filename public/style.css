@@ -2175,7 +2175,9 @@ height: auto;
   text-align: left;
   font-size: 1rem;
 }
-
+.stock-aroma{
+  font-weight: 700;
+}
 .swal-stock-list {
   background: #fff3f3;
   border-left: 4px solid #e74c3c;

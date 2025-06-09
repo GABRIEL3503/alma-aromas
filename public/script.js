@@ -1115,12 +1115,23 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
         .then(res => res.json())
         .then(data => {
          if (!data.success) {
- const errores = data.insufficient.map(item => `
-  • <span class="stock-aroma">${item.aroma}</span> 
-    <span class="stock-labeluno">Disponible: ${item.available}</span> 
-    <span class="stock-label">Solicitado: ${item.requested}</span> 
-    
-`).join('<br>');
+const errores = data.insufficient.map(item => {
+  const key = Object.keys(cart).find(k => {
+    const [pid, ...aromaParts] = k.split('::');
+    return parseInt(pid) === item.product_id && aromaParts.join('::') === item.aroma;
+  });
+
+  const product = cart[key];
+  const name = product?.name || 'Producto';
+
+  return `
+    • <span class="stock-product">${name}</span> - 
+      <span class="stock-aroma">${item.aroma}</span> 
+      <span class="stock-labeluno">Disponible: ${item.available}</span> 
+      <span class="stock-label">Solicitado: ${item.requested}</span>
+  `;
+}).join('<br>');
+
 
 
   return Swal.fire({
