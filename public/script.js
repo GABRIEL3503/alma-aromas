@@ -1224,9 +1224,6 @@ const errores = data.insufficient.map(item => {
     }
   }
   
-document.querySelectorAll('.quantity-btn').forEach(button => {
-  button.addEventListener('click', handleQuantityChange);
-});
 
   function handleQuantityChange(event) {
     const action = event.target.dataset.action;
