@@ -1133,6 +1133,8 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
         <p class="swal-stock-ajuste">Podés ajustar la cantidad desde tu carrito.</p>
       </div>
     `,
+    confirmButtonText: 'Entendido',
+
     customClass: {
       popup: 'swal-stock-popup',
       title: 'swal-stock-title',
