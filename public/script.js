@@ -1115,9 +1115,14 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
         .then(res => res.json())
         .then(data => {
          if (!data.success) {
-  const errores = data.insufficient.map(item =>
-    `• ${item.aroma} (Stock: ${item.available}, Solicitado: ${item.requested})`
-  ).join('<br>');
+ const errores = data.insufficient.map(item => `
+  • <span class="stock-aroma">${item.aroma}</span> 
+    <span class="stock-label">Disponible:</span> 
+    <span class="stock-available">${item.available}</span>, 
+    <span class="stock-label">Solicitado:</span> 
+    <span class="stock-requested">${item.requested}</span>
+`).join('<br>');
+
 
   return Swal.fire({
     icon: 'error',

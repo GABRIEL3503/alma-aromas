@@ -2163,8 +2163,8 @@ input[type="radio"]:checked::before {
 
 
 .swal-stock-popup {
-  max-width: 500px;
-}
+height: auto;
+    max-width: 800px;}
 
 .swal-stock-title {
   color: #c0392b;
