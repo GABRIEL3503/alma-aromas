@@ -1230,7 +1230,7 @@ const errores = data.insufficient.map(item => {
     const cartItem = event.target.closest('.cart-item');
     const productId = cartItem.dataset.id;
     const aroma = cartItem.dataset.aroma || 'sin-aroma';
-    const productKey = `${productId}-${aroma}`;
+const productKey = `${productId}::${aroma}`;
   
     let cart = JSON.parse(localStorage.getItem('cart')) || {};
     const product = cart[productKey];
@@ -1267,7 +1267,7 @@ const errores = data.insufficient.map(item => {
   
     const productId = cartItem.dataset.id;
     const aroma = cartItem.dataset.aroma || 'sin-aroma';
-    const productKey = `${productId}-${aroma}`;
+const productKey = `${productId}::${aroma}`;
   
     console.log('Intentando eliminar producto:', { productId, aroma, productKey });
   
