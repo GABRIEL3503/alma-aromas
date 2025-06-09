@@ -1956,7 +1956,7 @@ input[type="radio"]:checked::before {
   .item-price-mayorista{
     color: #592520;
     letter-spacing: -0.5px;
-    margin-left: -564px;
+    margin-left: -314px;
     font-family: "Quicksand", sans-serif;
     font-size: 64px;
     font-weight: 500;

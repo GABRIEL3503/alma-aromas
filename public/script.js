@@ -872,7 +872,8 @@ ${hasPrecio ? `<button class="add-to-cart-btn" data-id="${item.id}" data-name="$
       }
   
       // Clave: '18-lavanda'
-      const [productId, aroma] = key.split('-');
+const [productId, ...aromaParts] = key.split('::');
+const aroma = aromaParts.join('::');
   
       total += product.price * product.quantity;
       const aromaText = aroma ? `Aroma: *${aroma}*` : 'Aroma: *N/A*';
@@ -1309,7 +1310,7 @@ const sectionName = menuSection?.querySelector('.section-title span')?.textConte
   }
 
   const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
-  const productKey = `${productId}-${selectedAroma}`;
+  const productKey = `${productId}::${selectedAroma}`;
 
   if (cart[productKey]) {
     cart[productKey].quantity += 1;
