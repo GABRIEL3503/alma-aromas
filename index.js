@@ -1122,6 +1122,55 @@ baseRouter.post('/api/config/minimo-mayorista', (req, res) => {
     }
   );
 });
+baseRouter.post('/api/stock/check', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const items = req.body;
+
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: 'Formato inválido. Se esperaba un array.' });
+  }
+
+  const insufficient = [];
+
+  let checked = 0;
+  const total = items.length;
+
+  if (total === 0) {
+    return res.json({ success: true, message: 'Carrito vacío' });
+  }
+
+  items.forEach(({ product_id, aroma, quantity }) => {
+    db.get(
+      'SELECT cantidad FROM stock_items WHERE menu_item_id = ? AND aroma = ?',
+      [product_id, aroma],
+      (err, row) => {
+        checked++;
+        if (err) {
+          console.error(err.message);
+          insufficient.push({ product_id, aroma, error: 'Error al consultar stock' });
+        } else {
+          const disponible = row ? row.cantidad : 0;
+          if (disponible < quantity) {
+            insufficient.push({
+              product_id,
+              aroma,
+              available: disponible,
+              requested: quantity
+            });
+          }
+        }
+
+        if (checked === total) {
+          if (insufficient.length > 0) {
+            res.json({ success: false, insufficient });
+          } else {
+            res.json({ success: true, message: 'Stock suficiente' });
+          }
+        }
+      }
+    );
+  });
+});
 
 
 import os from 'os';

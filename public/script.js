@@ -1079,13 +1079,14 @@ const aroma = aromaParts.join('::');
   
 document.querySelector('.confirm-order-btn').addEventListener('click', function () {
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  const formattedDate = formatDateArgentina(new Date());
 
-fetch('/alma-aromas/api/config/minimo-mayorista')
+  fetch('/alma-aromas/api/config/minimo-mayorista')
     .then(res => res.json())
     .then(data => {
-const MINIMO_MAYORISTA = parseInt((data?.value ?? '0').toString().replace(/\./g, ''), 10);
-const total = parseInt(document.getElementById('ca-total')?.textContent.replace(/\./g, '') || '0', 10);
-
+      const MINIMO_MAYORISTA = parseInt((data?.value ?? '0').toString().replace(/\./g, ''), 10);
+      const total = parseInt(document.getElementById('ca-total')?.textContent.replace(/\./g, '') || '0', 10);
 
       if (isMayorista && total < MINIMO_MAYORISTA) {
         Swal.fire({
@@ -1093,10 +1094,49 @@ const total = parseInt(document.getElementById('ca-total')?.textContent.replace(
           title: 'Compra mínima requerida',
           text: `El monto mínimo para pedidos mayoristas es de $${MINIMO_MAYORISTA.toLocaleString('es-AR')}.`,
         });
-        return; // ⛔ NO continuar
+        return;
       }
 
-      confirmOrder(formattedDate); // ✅ continúa si pasa la validación
+      // Validar stock antes de confirmar
+      const payload = Object.entries(cart).map(([key, product]) => {
+        const [productId, ...aromaParts] = key.split('::');
+        return {
+          product_id: parseInt(productId),
+          aroma: aromaParts.join('::'),
+          quantity: product.quantity
+        };
+      });
+
+      fetch('/alma-aromas/api/stock/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) {
+            const errores = data.insufficient.map(item =>
+              `• ${item.aroma} (Stock: ${item.available}, Solicitado: ${item.requested})`
+            ).join('<br>');
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Stock insuficiente',
+              html: `No hay suficiente stock para algunos productos:<br><br>${errores}`,
+            });
+            return; // ⛔ Cancelar confirmación
+          }
+
+          // ✅ Todo OK
+          confirmOrder(formattedDate);
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al validar el stock',
+            text: 'No se pudo verificar el stock. Intenta más tarde.',
+          });
+        });
     })
     .catch(() => {
       Swal.fire({
