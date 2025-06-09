@@ -1117,7 +1117,7 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
          if (!data.success) {
  const errores = data.insufficient.map(item => `
   • <span class="stock-aroma">${item.aroma}</span> 
-    <span class="stock-label">Disponible: ${item.available}</span> 
+    <span class="stock-labeluno">Disponible: ${item.available}</span> 
     <span class="stock-label">Solicitado: ${item.requested}</span> 
     
 `).join('<br>');
