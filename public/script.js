@@ -1139,9 +1139,9 @@ const errores = data.insufficient.map(item => {
     title: 'Stock insuficiente',
     html: `
       <div class="swal-stock-html">
-        <p>No hay suficiente stock para algunos productos:</p>
+        
         <div class="swal-stock-list">${errores}</div>
-        <p class="swal-stock-ajuste">Podés ajustar la cantidad desde tu carrito.</p>
+        <p class="swal-stock-ajuste">Ajustá la cantidad desde tu carrito.</p>
       </div>
     `,
     confirmButtonText: 'Entendido',
