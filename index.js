@@ -1051,35 +1051,35 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
     }
 
     // Paso 3: Eliminar registros con cantidad = 0
-    await new Promise((resolve, reject) => {
-      db.run(`
-        DELETE FROM stock_items 
-        WHERE cantidad = 0`,
-        (err) => (err ? reject(err) : resolve())
-      );
-    });
+    // await new Promise((resolve, reject) => {
+    //   db.run(`
+    //     DELETE FROM stock_items 
+    //     WHERE cantidad = 0`,
+    //     (err) => (err ? reject(err) : resolve())
+    //   );
+    // });
 
     // Paso 4: Ocultar productos sin stock
-    const stockCheckProducts = await new Promise((resolve, reject) => {
-      db.all(`
-        SELECT menu_item_id, COUNT(*) AS totalStock 
-        FROM stock_items 
-        GROUP BY menu_item_id`,
-        (err, rows) => (err ? reject(err) : resolve(rows))
-      );
-    });
+    // const stockCheckProducts = await new Promise((resolve, reject) => {
+    //   db.all(`
+    //     SELECT menu_item_id, COUNT(*) AS totalStock 
+    //     FROM stock_items 
+    //     GROUP BY menu_item_id`,
+    //     (err, rows) => (err ? reject(err) : resolve(rows))
+    //   );
+    // });
 
-    for (const product of stockCheckProducts) {
-      if (product.totalStock === 0) {
-        await new Promise((resolve, reject) => {
-          db.run(
-            `UPDATE menu_items SET hidden = 1 WHERE id = ?`,
-            [product.menu_item_id],
-            (err) => (err ? reject(err) : resolve())
-          );
-        });
-      }
-    }
+    // for (const product of stockCheckProducts) {
+    //   if (product.totalStock === 0) {
+    //     await new Promise((resolve, reject) => {
+    //       db.run(
+    //         `UPDATE menu_items SET hidden = 1 WHERE id = ?`,
+    //         [product.menu_item_id],
+    //         (err) => (err ? reject(err) : resolve())
+    //       );
+    //     });
+    //   }
+    // }
 
     // Paso 5: Marcar pedido como pagado
     await new Promise((resolve, reject) => {
