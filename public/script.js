@@ -1441,7 +1441,7 @@ function renderTotal(subtotal, deliveryPrice, discount = 0) {
   if (discount > 0) {
     const totalSinDescuento = subtotal + deliveryPrice;
     const porcentaje = Math.round((discount / totalSinDescuento) * 100);
-    discountInfo.innerHTML = `💸 Precio sin descuento: ${formatPrice(totalSinDescuento)}<br>💸 ${porcentaje}% de descuento aplicado`;
+    discountInfo.innerHTML = `Sin descuento: $${formatPrice(totalSinDescuento)}<br>💸 ${porcentaje}% OFF`;
   } else {
     discountInfo.textContent = '';
   }
