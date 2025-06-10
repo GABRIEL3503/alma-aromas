@@ -1038,15 +1038,15 @@ baseRouter.post('/api/orders', (req, res) => {
 // PUT: Actualizar el porcentaje de descuento por pago en efectivo o transferencia
 baseRouter.put('/api/payment-fee', (req, res) => {
   const db = ensureDatabaseConnection();
-  const { fee_percent } = req.body;
+  const { fee_percent, enabled } = req.body;
 
-  db.run('UPDATE payment_settings SET fee_percent = ? WHERE id = 1', [fee_percent], function (err) {
+  db.run('UPDATE payment_settings SET fee_percent = ?, enabled = ? WHERE id = 1', [fee_percent, enabled], function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
 
     if (this.changes === 0) {
-      db.run('INSERT INTO payment_settings (id, fee_percent) VALUES (1, ?)', [fee_percent], function (err) {
+      db.run('INSERT INTO payment_settings (id, fee_percent, enabled) VALUES (1, ?, ?)', [fee_percent, enabled], function (err) {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
@@ -1057,6 +1057,7 @@ baseRouter.put('/api/payment-fee', (req, res) => {
     }
   });
 });
+
 
 // GET: Obtener el porcentaje actual de descuento
 baseRouter.get('/api/payment-fee', (req, res) => {
