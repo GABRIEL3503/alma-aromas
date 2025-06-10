@@ -1062,12 +1062,15 @@ baseRouter.put('/api/payment-fee', (req, res) => {
 baseRouter.get('/api/payment-fee', (req, res) => {
   const db = ensureDatabaseConnection();
 
-  db.get('SELECT fee_percent FROM payment_settings WHERE id = 1', [], (err, row) => {
+  db.get('SELECT fee_percent, enabled FROM payment_settings WHERE id = 1', [], (err, row) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
 
-    res.json({ fee_percent: row?.fee_percent || 0 });
+    res.json({
+      fee_percent: row?.fee_percent || 0,
+      enabled: !!row?.enabled // importante para que frontend lo entienda como booleano
+    });
   });
 });
 
