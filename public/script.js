@@ -1134,7 +1134,9 @@ const aroma = aromaParts.join('::');
                   </div>
                 </div>
                 <p><strong>Total: $<span id="ca-total">${formatPrice(total)}</span></strong></p>
-              </span>
+              <p id="discount-info" style="font-size:0.9em;color:#28a745;"></p>
+
+                </span>
               <div class="payment-options">
                 <h4>Pago</h4>
                 <label>Transferencia<input type="radio" name="payment-method" value="Transferencia"></label><br>
