@@ -541,6 +541,106 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
           });
         });
     });
+    // Botón para pausar catálogo
+const toggleCatalogButton = document.createElement('button');
+toggleCatalogButton.id = 'toggle-catalog-button';
+toggleCatalogButton.classList.add('auth-required');
+toggleCatalogButton.textContent = 'Pausar Catálogo';
+
+editDeliveryPriceButton.parentElement.appendChild(toggleCatalogButton);
+
+let isPaused = false;
+
+function updateToggleText() {
+  toggleCatalogButton.textContent = isPaused ? 'Reanudar Catálogo' : 'Pausar Catálogo';
+}
+
+// Obtener estado actual
+fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status')
+  .then(res => res.json())
+  .then(data => {
+    isPaused = !!data.paused;
+    updateToggleText();
+  });
+
+toggleCatalogButton.addEventListener('click', () => {
+  isPaused = !isPaused;
+  fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('alma-aromas')}`
+    },
+    body: JSON.stringify({ paused: isPaused })
+  })
+    .then(res => res.json())
+    .then(() => {
+      updateToggleText();
+      Swal.fire(
+        'Catálogo ' + (isPaused ? 'pausado' : 'reactivado'),
+        isPaused ? 'Los usuarios no podrán agregar productos.' : 'Todo volvió a la normalidad.',
+        'info'
+      );
+    })
+    .catch(() => {
+      Swal.fire('Error', 'No se pudo cambiar el estado del catálogo', 'error');
+    });
+});
+
+
+const generalDiscountBtn = document.createElement('button');
+generalDiscountBtn.id = 'edit-general-discount-button';
+generalDiscountBtn.classList.add('auth-required');
+generalDiscountBtn.textContent = 'Editar Descuento General';
+
+editDeliveryPriceButton.parentElement.appendChild(generalDiscountBtn);
+
+generalDiscountBtn.addEventListener('click', () => {
+  fetch('https://octopus-app.com.ar/alma-aromas//api/payment-fee')
+    .then(res => res.json())
+    .then(({ fee_percent, enabled }) => {
+      Swal.fire({
+        title: 'Descuento General',
+        html: `
+          <input id="swal-input1" class="swal2-input" placeholder="Porcentaje" value="${fee_percent}">
+          <div style="margin-top:10px;">
+            <label><input type="checkbox" id="swal-enabled" ${enabled ? 'checked' : ''}> Activar descuento</label>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          const percent = parseFloat(document.getElementById('swal-input1').value);
+          const isEnabled = document.getElementById('swal-enabled').checked;
+
+          if (isNaN(percent) || percent < 0 || percent > 100) {
+            Swal.showValidationMessage('Porcentaje inválido (0–100)');
+            return false;
+          }
+
+          return fetch('https://octopus-app.com.ar/alma-aromas//api/payment-fee', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('alma-aromas')}`
+            },
+            body: JSON.stringify({ fee_percent: percent, enabled: isEnabled })
+          })
+            .then(r => r.json())
+            .then(r => {
+              if (!r.success) throw new Error();
+              Swal.fire('Actualizado', 'Descuento general guardado', 'success');
+            })
+            .catch(() => {
+              Swal.fire('Error', 'No se pudo guardar', 'error');
+            });
+        }
+      });
+    });
+});
+
+
   }
 
   function capitalizeFirstLetter(string) {
@@ -1295,43 +1395,53 @@ const productKey = `${productId}::${aroma}`;
 
 
 
-  function updateCartTotal() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const subtotal = Object.values(cart).reduce((sum, product) => sum + (product.totalPrice || 0), 0);
+function updateCartTotal() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  const subtotal = Object.values(cart).reduce((sum, product) => sum + (product.totalPrice || 0), 0);
 
-    // Obtener método de entrega seleccionado
-    const deliveryMethodElement = document.querySelector('input[name="delivery-method"]:checked');
-    const isDelivery = deliveryMethodElement && deliveryMethodElement.value === 'delivery';
+  const deliveryMethodElement = document.querySelector('input[name="delivery-method"]:checked');
+  const isDelivery = deliveryMethodElement && deliveryMethodElement.value === 'delivery';
 
-    // Retornar una promesa para manejar sincronización
-    return new Promise((resolve) => {
-      if (isDelivery) {
-        fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
-          .then(response => response.json())
-          .then(data => {
-            const deliveryPrice = data.price || 0;
-            renderTotal(subtotal, deliveryPrice); // Actualizar el total con envío
-            resolve(subtotal + deliveryPrice); // Retornar el total calculado
-          })
-          .catch(() => {
-            console.warn("Error al obtener el precio de envío. Usando 0 como predeterminado.");
-            renderTotal(subtotal, 0);
-            resolve(subtotal); // Retornar solo el subtotal en caso de error
-          });
-      } else {
-        renderTotal(subtotal, 0); // Actualizar total sin envío
-        resolve(subtotal); // Retornar el subtotal
-      }
+  const deliveryPromise = isDelivery
+    ? fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
+        .then(res => res.json())
+        .then(d => d.price || 0)
+        .catch(() => 0)
+    : Promise.resolve(0);
+
+  const discountPromise = fetch('https://octopus-app.com.ar/alma-aromas/api/payment-fee')
+    .then(res => res.json())
+    .then(d => d.enabled ? subtotal * (d.fee_percent / 100) : 0)
+    .catch(() => 0);
+
+  return Promise.all([deliveryPromise, discountPromise])
+    .then(([deliveryPrice, discount]) => {
+      renderTotal(subtotal, deliveryPrice, discount);
+      return subtotal + deliveryPrice - discount;
     });
+}
+
+function renderTotal(subtotal, deliveryPrice, discount = 0) {
+  const total = subtotal + deliveryPrice - discount;
+  const cartTotalElement = document.getElementById('ca-total');
+  if (cartTotalElement) {
+    cartTotalElement.textContent = formatPrice(total);
   }
 
-  function renderTotal(subtotal, deliveryPrice) {
-    const total = subtotal + deliveryPrice;
-    const cartTotalElement = document.getElementById('ca-total');
-    if (cartTotalElement) {
-      cartTotalElement.textContent = formatPrice(total);  // ✅ Aplicamos el formato correcto
-    }
+  let discountInfo = document.getElementById('discount-info');
+  if (!discountInfo) {
+    discountInfo = document.createElement('p');
+    discountInfo.id = 'discount-info';
+    discountInfo.style.fontSize = '0.9em';
+    discountInfo.style.color = '#28a745';
+    cartTotalElement?.parentElement?.appendChild(discountInfo);
   }
+
+  discountInfo.textContent = discount > 0
+    ? `💸 Descuento aplicado: -${formatPrice(discount.toFixed(2))}`
+    : '';
+}
+
 
   // Evento para manejar el clic en el botón "+"
   document.body.addEventListener('click', function (event) {
@@ -1345,81 +1455,104 @@ const productKey = `${productId}::${aroma}`;
   });
 
 function addToCart(productId, productName, productPrice) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || {};
-  const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
-
-  if (!productElement) {
-    console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
-    return;
+  // ✅ Paso 1: Verificar si el catálogo está pausado
+  fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status')
+    .then(res => res.json())
+    .then(data => {
+      if (data.paused) {
+        Swal.fire({
+          title: 'Catálogo en actualización',
+          text: 'Estamos actualizando el catálogo. Gracias por elegirnos.',
+          icon: 'info',
+            confirmButtonText: 'Entendido',
+  customClass: {
+    popup: 'catalog-popup',
+    title: 'catalog-title',
+    content: 'catalog-content',
+    confirmButton: 'catalog-confirm-btn'
   }
-
-  // ✅ Si es mayorista, reemplazar precio por el visible en el DOM
-  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
-  if (isMayorista) {
-    const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
-    const raw = mayoristaText.replace(/\D/g, '');
-    const parsed = parseFloat(raw);
-    if (!isNaN(parsed)) {
-      productPrice = parsed;
-    }
-  }
-
-  const aromaElement = productElement.querySelector('.aroma-select');
-
-  if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Selecciona un aroma',
-      text: 'Debes elegir un aroma antes de continuar.',
-      confirmButtonText: 'Aceptar',
-      customClass: { popup: 'mi-alerta-personalizada' }
-    });
-    return;
-  }
-
-  const selectedAroma = aromaElement?.value || 'sin-aroma';
-
-  const menuSection = productElement.closest('.menu-section');
-const sectionName = menuSection?.querySelector('.section-title span')?.textContent.trim() || 'Otros';
-
-  let mainTitle = '';
-  let current = productElement.previousElementSibling;
-
-  if (productElement.querySelector('.item-title.porciones-title')) {
-    while (current) {
-      const titleElement = current.querySelector('.item-title:not(.porciones-title)');
-      if (titleElement) {
-        mainTitle = titleElement.textContent.trim();
-        break;
+});
+       
+        return;
       }
-      current = current.previousElementSibling;
-    }
-  }
 
-  const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
-  const productKey = `${productId}::${selectedAroma}`;
+      // ✅ Paso 2: Continuar con la lógica original
+      let cart = JSON.parse(localStorage.getItem('cart')) || {};
+      const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
 
-  if (cart[productKey]) {
-    cart[productKey].quantity += 1;
-    cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
-    console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
-  } else {
-    cart[productKey] = {
-      id: productId,
-      name: finalProductName,
-      price: productPrice,
-      quantity: 1,
-      totalPrice: productPrice,
-      aroma: selectedAroma,
-      section: sectionName 
-    };
-    console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
-  }
+      if (!productElement) {
+        console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
+        return;
+      }
 
-  localStorage.setItem('cart', JSON.stringify(cart));
-  console.log(`Carrito actualizado en localStorage:`, cart);
-  showToast(finalProductName);
+      const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+      if (isMayorista) {
+        const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
+        const raw = mayoristaText.replace(/\D/g, '');
+        const parsed = parseFloat(raw);
+        if (!isNaN(parsed)) {
+          productPrice = parsed;
+        }
+      }
+
+      const aromaElement = productElement.querySelector('.aroma-select');
+      if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Selecciona un aroma',
+          text: 'Debes elegir un aroma antes de continuar.',
+          confirmButtonText: 'Aceptar',
+          customClass: { popup: 'mi-alerta-personalizada' }
+        });
+        return;
+      }
+
+      const selectedAroma = aromaElement?.value || 'sin-aroma';
+      const menuSection = productElement.closest('.menu-section');
+      const sectionName = menuSection?.querySelector('.section-title span')?.textContent.trim() || 'Otros';
+
+      let mainTitle = '';
+      let current = productElement.previousElementSibling;
+      if (productElement.querySelector('.item-title.porciones-title')) {
+        while (current) {
+          const titleElement = current.querySelector('.item-title:not(.porciones-title)');
+          if (titleElement) {
+            mainTitle = titleElement.textContent.trim();
+            break;
+          }
+          current = current.previousElementSibling;
+        }
+      }
+
+      const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
+      const productKey = `${productId}::${selectedAroma}`;
+
+      if (cart[productKey]) {
+        cart[productKey].quantity += 1;
+        cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
+        console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
+      } else {
+        cart[productKey] = {
+          id: productId,
+          name: finalProductName,
+          price: productPrice,
+          quantity: 1,
+          totalPrice: productPrice,
+          aroma: selectedAroma,
+          section: sectionName
+        };
+        console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      console.log(`Carrito actualizado en localStorage:`, cart);
+      showToast(finalProductName);
+    })
+    .catch(() => {
+      Swal.fire('Error', 'No se pudo verificar el estado del catálogo', 'error');
+    });
 }
+
 
   
 
