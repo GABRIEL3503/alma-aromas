@@ -1434,15 +1434,20 @@ function renderTotal(subtotal, deliveryPrice, discount = 0) {
   if (!discountInfo) {
     discountInfo = document.createElement('p');
     discountInfo.id = 'discount-info';
-    discountInfo.style.fontSize = '0.9em';
+    discountInfo.style.fontSize = '1.9em';
     discountInfo.style.color = '#28a745';
     cartTotalElement?.parentElement?.appendChild(discountInfo);
   }
 
-  discountInfo.textContent = discount > 0
-    ? `💸 Descuento aplicado: -${formatPrice(discount.toFixed(2))}`
-    : '';
+  if (discount > 0) {
+    const totalSinDescuento = subtotal + deliveryPrice;
+    const porcentaje = Math.round((discount / totalSinDescuento) * 100);
+    discountInfo.innerHTML = `💸 Precio sin descuento: ${formatPrice(totalSinDescuento)}<br>💸 ${porcentaje}% de descuento aplicado`;
+  } else {
+    discountInfo.textContent = '';
+  }
 }
+
 
 
 
