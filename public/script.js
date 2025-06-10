@@ -541,6 +541,52 @@ localStorage.setItem('menuDataExpiry', Date.now() + 3600 * 1000); // Expira en 1
           });
         });
     });
+    // Botón para pausar catálogo
+const toggleCatalogButton = document.createElement('button');
+toggleCatalogButton.id = 'toggle-catalog-button';
+toggleCatalogButton.classList.add('auth-required');
+toggleCatalogButton.textContent = 'Pausar Catálogo';
+
+editDeliveryPriceButton.parentElement.appendChild(toggleCatalogButton);
+
+let isPaused = false;
+
+function updateToggleText() {
+  toggleCatalogButton.textContent = isPaused ? 'Reanudar Catálogo' : 'Pausar Catálogo';
+}
+
+// Obtener estado actual
+fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status')
+  .then(res => res.json())
+  .then(data => {
+    isPaused = !!data.paused;
+    updateToggleText();
+  });
+
+toggleCatalogButton.addEventListener('click', () => {
+  isPaused = !isPaused;
+  fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('alma-aromas')}`
+    },
+    body: JSON.stringify({ paused: isPaused })
+  })
+    .then(res => res.json())
+    .then(() => {
+      updateToggleText();
+      Swal.fire(
+        'Catálogo ' + (isPaused ? 'pausado' : 'reactivado'),
+        isPaused ? 'Los usuarios no podrán agregar productos.' : 'Todo volvió a la normalidad.',
+        'info'
+      );
+    })
+    .catch(() => {
+      Swal.fire('Error', 'No se pudo cambiar el estado del catálogo', 'error');
+    });
+});
+
   }
 
   function capitalizeFirstLetter(string) {
@@ -1345,81 +1391,96 @@ const productKey = `${productId}::${aroma}`;
   });
 
 function addToCart(productId, productName, productPrice) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || {};
-  const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
-
-  if (!productElement) {
-    console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
-    return;
-  }
-
-  // ✅ Si es mayorista, reemplazar precio por el visible en el DOM
-  const isMayorista = localStorage.getItem('mayorista_access') === 'true';
-  if (isMayorista) {
-    const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
-    const raw = mayoristaText.replace(/\D/g, '');
-    const parsed = parseFloat(raw);
-    if (!isNaN(parsed)) {
-      productPrice = parsed;
-    }
-  }
-
-  const aromaElement = productElement.querySelector('.aroma-select');
-
-  if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Selecciona un aroma',
-      text: 'Debes elegir un aroma antes de continuar.',
-      confirmButtonText: 'Aceptar',
-      customClass: { popup: 'mi-alerta-personalizada' }
-    });
-    return;
-  }
-
-  const selectedAroma = aromaElement?.value || 'sin-aroma';
-
-  const menuSection = productElement.closest('.menu-section');
-const sectionName = menuSection?.querySelector('.section-title span')?.textContent.trim() || 'Otros';
-
-  let mainTitle = '';
-  let current = productElement.previousElementSibling;
-
-  if (productElement.querySelector('.item-title.porciones-title')) {
-    while (current) {
-      const titleElement = current.querySelector('.item-title:not(.porciones-title)');
-      if (titleElement) {
-        mainTitle = titleElement.textContent.trim();
-        break;
+  // ✅ Paso 1: Verificar si el catálogo está pausado
+  fetch('https://octopus-app.com.ar/alma-aromas/api/catalog-status')
+    .then(res => res.json())
+    .then(data => {
+      if (data.paused) {
+        Swal.fire({
+          title: 'Catálogo en actualización',
+          text: 'Estamos actualizando el catálogo. Gracias por elegirnos.',
+          icon: 'info'
+        });
+        return;
       }
-      current = current.previousElementSibling;
-    }
-  }
 
-  const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
-  const productKey = `${productId}::${selectedAroma}`;
+      // ✅ Paso 2: Continuar con la lógica original
+      let cart = JSON.parse(localStorage.getItem('cart')) || {};
+      const productElement = document.querySelector(`.menu-item[data-id="${productId}"]`);
 
-  if (cart[productKey]) {
-    cart[productKey].quantity += 1;
-    cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
-    console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
-  } else {
-    cart[productKey] = {
-      id: productId,
-      name: finalProductName,
-      price: productPrice,
-      quantity: 1,
-      totalPrice: productPrice,
-      aroma: selectedAroma,
-      section: sectionName 
-    };
-    console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
-  }
+      if (!productElement) {
+        console.warn(`Producto con ID ${productId} no encontrado en el DOM.`);
+        return;
+      }
 
-  localStorage.setItem('cart', JSON.stringify(cart));
-  console.log(`Carrito actualizado en localStorage:`, cart);
-  showToast(finalProductName);
+      const isMayorista = localStorage.getItem('mayorista_access') === 'true';
+      if (isMayorista) {
+        const mayoristaText = productElement.querySelector('.item-price-mayorista')?.textContent || '';
+        const raw = mayoristaText.replace(/\D/g, '');
+        const parsed = parseFloat(raw);
+        if (!isNaN(parsed)) {
+          productPrice = parsed;
+        }
+      }
+
+      const aromaElement = productElement.querySelector('.aroma-select');
+      if (aromaElement && aromaElement.options.length > 1 && !aromaElement.value) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Selecciona un aroma',
+          text: 'Debes elegir un aroma antes de continuar.',
+          confirmButtonText: 'Aceptar',
+          customClass: { popup: 'mi-alerta-personalizada' }
+        });
+        return;
+      }
+
+      const selectedAroma = aromaElement?.value || 'sin-aroma';
+      const menuSection = productElement.closest('.menu-section');
+      const sectionName = menuSection?.querySelector('.section-title span')?.textContent.trim() || 'Otros';
+
+      let mainTitle = '';
+      let current = productElement.previousElementSibling;
+      if (productElement.querySelector('.item-title.porciones-title')) {
+        while (current) {
+          const titleElement = current.querySelector('.item-title:not(.porciones-title)');
+          if (titleElement) {
+            mainTitle = titleElement.textContent.trim();
+            break;
+          }
+          current = current.previousElementSibling;
+        }
+      }
+
+      const finalProductName = `${sectionName} ${mainTitle} ${productName}`.trim();
+      const productKey = `${productId}::${selectedAroma}`;
+
+      if (cart[productKey]) {
+        cart[productKey].quantity += 1;
+        cart[productKey].totalPrice = cart[productKey].price * cart[productKey].quantity;
+        console.log(`Producto existente en carrito. Cantidad actualizada a: ${cart[productKey].quantity}`);
+      } else {
+        cart[productKey] = {
+          id: productId,
+          name: finalProductName,
+          price: productPrice,
+          quantity: 1,
+          totalPrice: productPrice,
+          aroma: selectedAroma,
+          section: sectionName
+        };
+        console.log(`Producto nuevo agregado al carrito:`, cart[productKey]);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      console.log(`Carrito actualizado en localStorage:`, cart);
+      showToast(finalProductName);
+    })
+    .catch(() => {
+      Swal.fire('Error', 'No se pudo verificar el estado del catálogo', 'error');
+    });
 }
+
 
   
 
