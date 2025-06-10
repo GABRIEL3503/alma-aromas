@@ -2648,7 +2648,8 @@ width: auto ;}
 .switch-button,
 .btn-pausa,
 .orders-button,
-#toggle-catalog-button {
+#toggle-catalog-button,
+#edit-general-discount-button {
   align-items: center;
   margin-top: 12px;
   border-radius: 30px;
