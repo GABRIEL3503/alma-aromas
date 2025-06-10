@@ -805,6 +805,32 @@ baseRouter.put("/api/menu/:id/visibility", (req, res) => {
     res.json({ success: true });
   });
 });
+// Obtener estado actual del catálogo
+baseRouter.get('/api/catalog-status', (req, res) => {
+  const db = ensureDatabaseConnection();
+  db.get('SELECT paused FROM catalog_status WHERE id = 1', [], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ paused: !!row?.paused });
+  });
+});
+
+// Actualizar estado (pausar o reactivar)
+baseRouter.put('/api/catalog-status', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { paused } = req.body;
+
+  db.run('UPDATE catalog_status SET paused = ? WHERE id = 1', [paused ? 1 : 0], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) {
+      db.run('INSERT INTO catalog_status (id, paused) VALUES (1, ?)', [paused ? 1 : 0], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+      });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
 
 
 baseRouter.put('/api/delivery', (req, res) => {
