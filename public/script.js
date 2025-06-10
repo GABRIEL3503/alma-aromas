@@ -1134,7 +1134,7 @@ const aroma = aromaParts.join('::');
                   </div>
                 </div>
                 <p><strong>Total: $<span id="ca-total">${formatPrice(total)}</span></strong></p>
-              <p id="discount-info" style="font-size:0.9em;color:#28a745;"></p>
+              <p id="discount-info" style="color:#28a745;"></p>
 
                 </span>
               <div class="payment-options">
