@@ -2644,7 +2644,8 @@ width: auto ;}
 .btn-descuento,
 .switch-button,
 .btn-pausa,
-.orders-button {
+.orders-button,
+#toggle-catalog-button {
   align-items: center;
   margin-top: 12px;
   border-radius: 30px;
