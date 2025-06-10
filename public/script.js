@@ -1425,9 +1425,10 @@ function updateCartTotal() {
 
 function renderTotal(subtotal, deliveryPrice, discount = 0) {
   const total = subtotal + deliveryPrice - discount;
-  const totalFormatted = formatPrice(total);
-  const caTotalElement = document.getElementById('ca-total');
-  if (caTotalElement) caTotalElement.textContent = totalFormatted;
+  const cartTotalElement = document.getElementById('ca-total');
+  if (cartTotalElement) {
+    cartTotalElement.textContent = formatPrice(total);
+  }
 
   let discountInfo = document.getElementById('discount-info');
   if (!discountInfo) {
@@ -1435,13 +1436,14 @@ function renderTotal(subtotal, deliveryPrice, discount = 0) {
     discountInfo.id = 'discount-info';
     discountInfo.style.fontSize = '0.9em';
     discountInfo.style.color = '#28a745';
-    caTotalElement?.parentElement?.appendChild(discountInfo);
+    cartTotalElement?.parentElement?.appendChild(discountInfo);
   }
 
   discountInfo.textContent = discount > 0
     ? `💸 Descuento aplicado: -${formatPrice(discount.toFixed(2))}`
     : '';
 }
+
 
 
 
