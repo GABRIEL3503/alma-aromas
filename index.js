@@ -1172,55 +1172,6 @@ baseRouter.post('/api/stock/check', (req, res) => {
   });
 });
 
-// Obtener estado actual del catálogo
-baseRouter.get('/api/catalog-status', (req, res) => {
-  const db = ensureDatabaseConnection();
-  db.get('SELECT paused FROM catalog_status WHERE id = 1', [], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ paused: !!row?.paused });
-  });
-});
-
-// Actualizar estado (pausar o reactivar)
-baseRouter.put('/api/catalog-status', (req, res) => {
-  const db = ensureDatabaseConnection();
-  const { paused } = req.body;
-
-  db.run('UPDATE catalog_status SET paused = ? WHERE id = 1', [paused ? 1 : 0], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) {
-      db.run('INSERT INTO catalog_status (id, paused) VALUES (1, ?)', [paused ? 1 : 0], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true });
-      });
-    } else {
-      res.json({ success: true });
-    }
-  });
-});
-
-app.get('/api/payment-fee', (req, res) => {
-  db.get('SELECT fee_percent, enabled FROM payment_settings WHERE id = 1', (err, row) => {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ fee_percent: row?.fee_percent || 0, enabled: !!row?.enabled });
-  });
-});
-app.put('/api/payment-fee', authenticateToken, (req, res) => {
-  const { fee_percent, enabled } = req.body;
-
-  if (typeof fee_percent !== 'number' || fee_percent < 0 || fee_percent > 100) {
-    return res.status(400).json({ success: false, message: 'Porcentaje inválido' });
-  }
-
-  db.run(
-    'UPDATE payment_settings SET fee_percent = ?, enabled = ? WHERE id = 1',
-    [fee_percent, enabled ? 1 : 0],
-    function (err) {
-      if (err) return res.status(500).json({ success: false, error: err.message });
-      res.json({ success: true });
-    }
-  );
-});
 
 import os from 'os';
 
