@@ -1434,7 +1434,7 @@ function renderTotal(subtotal, deliveryPrice, discount = 0) {
   if (!discountInfo) {
     discountInfo = document.createElement('p');
     discountInfo.id = 'discount-info';
-    discountInfo.style.fontSize = '1.9em';
+    discountInfo.style.fontSize = '33px';
     discountInfo.style.color = '#28a745';
     cartTotalElement?.parentElement?.appendChild(discountInfo);
   }
