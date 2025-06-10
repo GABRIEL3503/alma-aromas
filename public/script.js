@@ -588,58 +588,6 @@ toggleCatalogButton.addEventListener('click', () => {
 });
 
 
-const generalDiscountBtn = document.createElement('button');
-generalDiscountBtn.id = 'edit-general-discount-button';
-generalDiscountBtn.classList.add('auth-required');
-generalDiscountBtn.textContent = 'Editar Descuento General';
-
-editDeliveryPriceButton.parentElement.appendChild(generalDiscountBtn);
-
-generalDiscountBtn.addEventListener('click', () => {
-  fetch('https://octopus-app.com.ar/alma-aromas//api/payment-fee')
-    .then(res => res.json())
-    .then(({ fee_percent, enabled }) => {
-      Swal.fire({
-        title: 'Descuento General',
-        html: `
-          <input id="swal-input1" class="swal2-input" placeholder="Porcentaje" value="${fee_percent}">
-          <div style="margin-top:10px;">
-            <label><input type="checkbox" id="swal-enabled" ${enabled ? 'checked' : ''}> Activar descuento</label>
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar',
-        preConfirm: () => {
-          const percent = parseFloat(document.getElementById('swal-input1').value);
-          const isEnabled = document.getElementById('swal-enabled').checked;
-
-          if (isNaN(percent) || percent < 0 || percent > 100) {
-            Swal.showValidationMessage('Porcentaje inválido (0–100)');
-            return false;
-          }
-
-          return fetch('https://octopus-app.com.ar/alma-aromas//api/payment-fee', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('alma-aromas')}`
-            },
-            body: JSON.stringify({ fee_percent: percent, enabled: isEnabled })
-          })
-            .then(r => r.json())
-            .then(r => {
-              if (!r.success) throw new Error();
-              Swal.fire('Actualizado', 'Descuento general guardado', 'success');
-            })
-            .catch(() => {
-              Swal.fire('Error', 'No se pudo guardar', 'error');
-            });
-        }
-      });
-    });
-});
-
 
   }
 
@@ -1395,53 +1343,43 @@ const productKey = `${productId}::${aroma}`;
 
 
 
-function updateCartTotal() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || {};
-  const subtotal = Object.values(cart).reduce((sum, product) => sum + (product.totalPrice || 0), 0);
+  function updateCartTotal() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    const subtotal = Object.values(cart).reduce((sum, product) => sum + (product.totalPrice || 0), 0);
 
-  const deliveryMethodElement = document.querySelector('input[name="delivery-method"]:checked');
-  const isDelivery = deliveryMethodElement && deliveryMethodElement.value === 'delivery';
+    // Obtener método de entrega seleccionado
+    const deliveryMethodElement = document.querySelector('input[name="delivery-method"]:checked');
+    const isDelivery = deliveryMethodElement && deliveryMethodElement.value === 'delivery';
 
-  const deliveryPromise = isDelivery
-    ? fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
-        .then(res => res.json())
-        .then(d => d.price || 0)
-        .catch(() => 0)
-    : Promise.resolve(0);
-
-  const discountPromise = fetch('https://octopus-app.com.ar/alma-aromas/api/payment-fee')
-    .then(res => res.json())
-    .then(d => d.enabled ? subtotal * (d.fee_percent / 100) : 0)
-    .catch(() => 0);
-
-  return Promise.all([deliveryPromise, discountPromise])
-    .then(([deliveryPrice, discount]) => {
-      renderTotal(subtotal, deliveryPrice, discount);
-      return subtotal + deliveryPrice - discount;
+    // Retornar una promesa para manejar sincronización
+    return new Promise((resolve) => {
+      if (isDelivery) {
+        fetch('https://octopus-app.com.ar/alma-aromas/api/delivery')
+          .then(response => response.json())
+          .then(data => {
+            const deliveryPrice = data.price || 0;
+            renderTotal(subtotal, deliveryPrice); // Actualizar el total con envío
+            resolve(subtotal + deliveryPrice); // Retornar el total calculado
+          })
+          .catch(() => {
+            console.warn("Error al obtener el precio de envío. Usando 0 como predeterminado.");
+            renderTotal(subtotal, 0);
+            resolve(subtotal); // Retornar solo el subtotal en caso de error
+          });
+      } else {
+        renderTotal(subtotal, 0); // Actualizar total sin envío
+        resolve(subtotal); // Retornar el subtotal
+      }
     });
-}
-
-function renderTotal(subtotal, deliveryPrice, discount = 0) {
-  const total = subtotal + deliveryPrice - discount;
-  const cartTotalElement = document.getElementById('ca-total');
-  if (cartTotalElement) {
-    cartTotalElement.textContent = formatPrice(total);
   }
 
-  let discountInfo = document.getElementById('discount-info');
-  if (!discountInfo) {
-    discountInfo = document.createElement('p');
-    discountInfo.id = 'discount-info';
-    discountInfo.style.fontSize = '0.9em';
-    discountInfo.style.color = '#28a745';
-    cartTotalElement?.parentElement?.appendChild(discountInfo);
+  function renderTotal(subtotal, deliveryPrice) {
+    const total = subtotal + deliveryPrice;
+    const cartTotalElement = document.getElementById('ca-total');
+    if (cartTotalElement) {
+      cartTotalElement.textContent = formatPrice(total);  // ✅ Aplicamos el formato correcto
+    }
   }
-
-  discountInfo.textContent = discount > 0
-    ? `💸 Descuento aplicado: -${formatPrice(discount.toFixed(2))}`
-    : '';
-}
-
 
   // Evento para manejar el clic en el botón "+"
   document.body.addEventListener('click', function (event) {
