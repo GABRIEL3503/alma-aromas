@@ -1469,7 +1469,7 @@ function addToCart(productId, productName, productPrice) {
     .then(data => {
       if (data.paused) {
         Swal.fire({
-          title: 'ESTAMOS ACTUALIZANDO NUESTRO CATÁLOGO',
+          title: 'Estamos actualizando nuestro catálogo',
           text: 'En breve estará disponible. Gracias por elegirnos 😊',
           icon: 'info',
             confirmButtonText: 'Entendido',
