@@ -170,7 +170,9 @@ margin-bottom: 8px;}
   justify-content: center;
 }
 
+.btn-descuento,
 .switch-button,
+.btn-pausa,
 .orders-button {
   align-items: center;
   margin-top: 12px;
