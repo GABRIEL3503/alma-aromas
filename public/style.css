@@ -1426,6 +1426,9 @@ input[type="radio"] {
   font-size: 38px;
   color: #2b2b2b !important;
 }
+#discount-info{
+  font-size: 33px;
+}
 
 .container-uno{
   text-align: -webkit-left;
