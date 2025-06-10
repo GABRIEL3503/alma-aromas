@@ -1161,7 +1161,7 @@ const aroma = aromaParts.join('::');
           `;
   
           document.body.appendChild(cartPopup);
-  
+  updateCartTotal()
           document.getElementById('pay-with-mp').addEventListener('click', function () {
             const total = parseFloat(document.getElementById('cart-total').textContent);
             handlePayment(total);
