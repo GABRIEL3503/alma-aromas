@@ -596,7 +596,7 @@ generalDiscountBtn.textContent = 'Editar Descuento General';
 editDeliveryPriceButton.parentElement.appendChild(generalDiscountBtn);
 
 generalDiscountBtn.addEventListener('click', () => {
-  fetch('https://octopus-app.com.ar/alma-aromas//api/payment-fee')
+  fetch('https://octopus-app.com.ar/alma-aromas/api/payment-fee')
     .then(res => res.json())
     .then(({ fee_percent, enabled }) => {
       Swal.fire({
