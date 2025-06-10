@@ -1399,8 +1399,16 @@ function addToCart(productId, productName, productPrice) {
         Swal.fire({
           title: 'Catálogo en actualización',
           text: 'Estamos actualizando el catálogo. Gracias por elegirnos.',
-          icon: 'info'
-        });
+          icon: 'info',
+            confirmButtonText: 'Entendido',
+  customClass: {
+    popup: 'catalog-popup',
+    title: 'catalog-title',
+    content: 'catalog-content',
+    confirmButton: 'catalog-confirm-btn'
+  }
+});
+       
         return;
       }
 

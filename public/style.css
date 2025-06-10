@@ -2657,3 +2657,10 @@ width: auto ;}
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+.item-price-mayorista{
+  margin-top: 40px;
+}
+.catalog-popup{
+      gap: 44px;
+    height: auto!important;
+}
