@@ -1098,6 +1098,59 @@ baseRouter.put('/api/orders/:id/status', async (req, res) => {
   }
 });
 
+app.get('/api/payment-fee', (req, res) => {
+  db.get('SELECT fee_percent, enabled FROM payment_settings WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+
+    // Si no existe el registro aún, devolvemos valores por defecto
+    if (!row) {
+      return res.json({ fee_percent: 0, enabled: false });
+    }
+
+    res.json({
+      fee_percent: row.fee_percent || 0,
+      enabled: !!row.enabled
+    });
+  });
+});
+app.put('/api/payment-fee', authenticateToken, (req, res) => {
+  const { fee_percent, enabled } = req.body;
+
+  // Validar entrada
+  if (typeof fee_percent !== 'number' || fee_percent < 0 || fee_percent > 100) {
+    return res.status(400).json({ success: false, message: 'Porcentaje inválido' });
+  }
+
+  const isEnabled = !!enabled;
+
+  db.run(
+    `UPDATE payment_settings SET fee_percent = ?, enabled = ? WHERE id = 1`,
+    [fee_percent, isEnabled ? 1 : 0],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ success: false, error: err.message });
+      }
+
+      // Si no se encontró la fila, hacer insert
+      if (this.changes === 0) {
+        db.run(
+          `INSERT INTO payment_settings (id, fee_percent, enabled) VALUES (1, ?, ?)`,
+          [fee_percent, isEnabled ? 1 : 0],
+          (err2) => {
+            if (err2) return res.status(500).json({ success: false, error: err2.message });
+            res.json({ success: true });
+          }
+        );
+      } else {
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+
 baseRouter.get('/api/config/minimo-mayorista', (req, res) => {
   const db = ensureDatabaseConnection();
   db.get('SELECT value FROM config WHERE key = ?', ['minimo_mayorista'], (err, row) => {
