@@ -1006,7 +1006,8 @@ const aroma = aromaParts.join('::');
       delivery_method: deliveryMethod,
       payment_method: paymentMethod,
       address: address,
-      items: items
+      items: items,
+       details: orderDetails
     };
 
     console.log("📤 Enviando orden:", orderData);
