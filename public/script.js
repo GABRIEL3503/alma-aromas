@@ -1046,10 +1046,11 @@ const aroma = aromaParts.join('::');
           throw new Error("Error en la respuesta del servidor");
         }
       })
-      .catch(error => {
-        console.error('Error al enviar el pedido:', error);
-        Swal.fire('Error', 'No se pudo procesar el pedido. Inténtalo más tarde.', 'error');
-      });
+   .catch(error => {
+  console.error('Error al enviar el pedido:', error);
+  Swal.fire('Error', `No se pudo procesar el pedido:\n${error.message}`, 'error');
+});
+
   }
 
 
