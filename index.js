@@ -1005,19 +1005,21 @@ baseRouter.post('/api/orders', (req, res) => {
       );
 
       try {
-        items.forEach(item => {
-          const aroma = item.aroma || null;
+   items.forEach((item, index) => {
+  const aroma = item.aroma || null;
+  const details = index === 0 ? req.body.details || null : null;
 
-          stmt.run([
-            id,
-            item.product_id,
-            aroma,
-            item.quantity,
-            item.price_at_time,
-            'pending',
-            item.details
-          ]);
-        });
+  stmt.run([
+    id,
+    item.product_id,
+    aroma,
+    item.quantity,
+    item.price_at_time,
+    'pending',
+    details
+  ]);
+});
+
 
         stmt.finalize();
         db.run('COMMIT', err => {
