@@ -1011,6 +1011,7 @@ const aroma = aromaParts.join('::');
     };
 
     console.log("📤 Enviando orden:", orderData);
+
 fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -1024,51 +1025,43 @@ fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
   })
   .then(data => {
     if (data.success) {
-      Swal.fire('Pedido Confirmado', 'Tu pedido ha sido enviado con éxito.', 'success');
+      Swal.fire(
+        'Pedido Confirmado',
+        'Tu pedido ha sido enviado con éxito.',
+        'success'
+      ).then(() => {
 
-      /* ────────────────────────────────────────────────────────────────
-         ✅ Enviar mensaje por WhatsApp (compatible iOS / Android / desktop)
-         ──────────────────────────────────────────────────────────────── */
-      const whatsappNumber = '5492994523800';
-      const mensaje        = encodeURIComponent(orderDetails);
-      const isIOS          = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isAndroid      = /Android/i.test(navigator.userAgent);
+        /* ───────────────────────────────────────────────
+           ✅ Enviar mensaje por WhatsApp (multiplataforma)
+        ─────────────────────────────────────────────── */
+        const whatsappNumber = '5492994523800';
+        const mensaje        = encodeURIComponent(orderDetails);
+        const isIOS          = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-      /* 1) URL adecuada */
-      const whatsappLink = isIOS
-        ? `whatsapp://send?phone=${whatsappNumber}&text=${mensaje}`   // esquema nativo iOS
-        : `https://wa.me/${whatsappNumber}?text=${mensaje}`;          // universal link
+        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${mensaje}`;
 
-      /* 2) Apertura */
-      if (isIOS) {
-        location.href = whatsappLink;          // misma pestaña ⇒ Safari no lo bloquea
-      } else {
-        window.open(whatsappLink, '_blank');   // tu comportamiento actual
-      }
-
-      /* 3) Fallback (opcional pero útil) */
-      setTimeout(() => {
         if (isIOS) {
-          location.href = 'https://apps.apple.com/app/whatsapp-messenger/id310633997';
-        } else if (!isAndroid) {               // desktop puro
-          window.open(
-            `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${mensaje}`,
-            '_blank'
-          );
+          // Misma pestaña para que Safari active el Universal Link
+          location.href = whatsappLink;
+        } else {
+          // Pop-up en Android y navegadores de escritorio
+          window.open(whatsappLink, '_blank');
         }
-      }, 2000);
 
-      /* ──────────────────────────────────────────────────────────────── */
+        /* ───────────────────────────────────────────────
+           ✅ Vaciar carrito después de la compra
+        ─────────────────────────────────────────────── */
+        localStorage.removeItem('cart');
 
-      // ✅ Vaciar carrito después de la compra
-      localStorage.removeItem('cart');
-
-      // ✅ Cerrar el popup del carrito
-      const cartPopup = document.querySelector('.cart-popup');
-      const overlay   = document.querySelector('.overlay');
-      if (cartPopup) document.body.removeChild(cartPopup);
-      if (overlay)   overlay.style.display = 'none';
-      document.body.style.overflow = '';
+        /* ───────────────────────────────────────────────
+           ✅ Cerrar el popup del carrito
+        ─────────────────────────────────────────────── */
+        const cartPopup = document.querySelector('.cart-popup');
+        const overlay   = document.querySelector('.overlay');
+        if (cartPopup) document.body.removeChild(cartPopup);
+        if (overlay)   overlay.style.display = 'none';
+        document.body.style.overflow = '';
+      });
     } else {
       throw new Error('Error en la respuesta del servidor');
     }
@@ -1077,7 +1070,6 @@ fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
     console.error('Error al enviar el pedido:', error);
     Swal.fire('Error', `No se pudo procesar el pedido:\n${error.message}`, 'error');
   });
-
 
   }
 
