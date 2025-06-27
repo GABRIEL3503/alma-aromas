@@ -1071,6 +1071,7 @@ fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
     Swal.fire('Error', `No se pudo procesar el pedido:\n${error.message}`, 'error');
   });
 
+
   }
 
 
