@@ -1183,24 +1183,7 @@ fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
           `;
   
           document.body.appendChild(cartPopup);
-  updateCartTotal()
-          document.getElementById('pay-with-mp').addEventListener('click', function () {
-            const total = parseFloat(document.getElementById('cart-total').textContent);
-            handlePayment(total);
-          });
-  
-          document.querySelector('.close-cart-btn').addEventListener('click', function () {
-            document.body.removeChild(cartPopup);
-            overlay.style.display = 'none';
-            document.body.style.overflow = '';
-          });
-  
-          document.querySelector('.continue-shopping-btn').addEventListener('click', function () {
-            document.body.removeChild(cartPopup);
-            overlay.style.display = 'none';
-            document.body.style.overflow = '';
-          });
-  
+            
 document.querySelector('.confirm-order-btn').addEventListener('click', function () {
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
   const cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -1317,6 +1300,24 @@ const errores = data.insufficient.map(item => {
       });
     });
 });
+
+  updateCartTotal()
+          document.getElementById('pay-with-mp').addEventListener('click', function () {
+            const total = parseFloat(document.getElementById('cart-total').textContent);
+            handlePayment(total);
+          });
+  
+          document.querySelector('.close-cart-btn').addEventListener('click', function () {
+            document.body.removeChild(cartPopup);
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+          });
+  
+          document.querySelector('.continue-shopping-btn').addEventListener('click', function () {
+            document.body.removeChild(cartPopup);
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+          });
 
   
           document.querySelectorAll('.quantity-btn').forEach(button => {
