@@ -1191,8 +1191,12 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
 
   fetch('/alma-aromas/api/config/minimo-mayorista')
     .then(res => res.json())
-    .then(data => {
-      const MINIMO_MAYORISTA = parseInt((data?.value ?? '0').toString().replace(/\./g, ''), 10);
+.then(data => {
+  if (!data.success || typeof data.value !== 'number') {
+    throw new Error('Valor inválido desde /api/config/minimo-mayorista');
+  }
+  const MINIMO_MAYORISTA = parseInt(data.value, 10);
+
       const total = parseInt(document.getElementById('ca-total')?.textContent.replace(/\./g, '') || '0', 10);
 
       if (isMayorista && total < MINIMO_MAYORISTA) {
