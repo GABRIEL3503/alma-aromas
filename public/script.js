@@ -1197,7 +1197,8 @@ document.querySelector('.confirm-order-btn').addEventListener('click', function 
   }
   const MINIMO_MAYORISTA = parseInt(data.value, 10);
 
-      const total = parseInt(document.getElementById('ca-total')?.textContent.replace(/\./g, '') || '0', 10);
+const totalText = document.getElementById('ca-total')?.textContent || '0';
+const total = parseInt(totalText.replace(/[^\d]/g, ''), 10); // remueve todo excepto dígitos
 
       if (isMayorista && total < MINIMO_MAYORISTA) {
         Swal.fire({
