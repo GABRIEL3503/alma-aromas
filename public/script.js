@@ -1183,22 +1183,23 @@ fetch('https://octopus-app.com.ar/alma-aromas/api/orders', {
           `;
   
           document.body.appendChild(cartPopup);
-            
 document.querySelector('.confirm-order-btn').addEventListener('click', function () {
+  const btn = this;
+  btn.disabled = true; // ✅ evita doble clic
+
   const isMayorista = localStorage.getItem('mayorista_access') === 'true';
   const cart = JSON.parse(localStorage.getItem('cart')) || {};
   const formattedDate = formatDateArgentina(new Date());
 
   fetch('/alma-aromas/api/config/minimo-mayorista')
     .then(res => res.json())
-.then(data => {
-  if (!data.success || typeof data.value !== 'number') {
-    throw new Error('Valor inválido desde /api/config/minimo-mayorista');
-  }
-  const MINIMO_MAYORISTA = parseInt(data.value, 10);
-
-const totalText = document.getElementById('ca-total')?.textContent || '0';
-const total = parseInt(totalText.replace(/[^\d]/g, ''), 10); // remueve todo excepto dígitos
+    .then(data => {
+      if (!data.success || typeof data.value !== 'number') {
+        throw new Error('Valor inválido desde /api/config/minimo-mayorista');
+      }
+      const MINIMO_MAYORISTA = parseInt(data.value, 10);
+      const totalText = document.getElementById('ca-total')?.textContent || '0';
+      const total = parseInt(totalText.replace(/[^\d]/g, ''), 10);
 
       if (isMayorista && total < MINIMO_MAYORISTA) {
         Swal.fire({
@@ -1206,10 +1207,10 @@ const total = parseInt(totalText.replace(/[^\d]/g, ''), 10); // remueve todo exc
           title: 'Compra mínima requerida',
           text: `El monto mínimo para pedidos mayoristas es de $${MINIMO_MAYORISTA.toLocaleString('es-AR')}.`,
         });
+        btn.disabled = false; // 🔓 volver a habilitar
         return;
       }
 
-      // Validar stock antes de confirmar
       const payload = Object.entries(cart).map(([key, product]) => {
         const [productId, ...aromaParts] = key.split('::');
         return {
@@ -1226,67 +1227,65 @@ const total = parseInt(totalText.replace(/[^\d]/g, ''), 10); // remueve todo exc
       })
         .then(res => res.json())
         .then(data => {
-         if (!data.success) {
-const errores = data.insufficient.map(item => {
-  const key = Object.keys(cart).find(k => {
-    const [pid, ...aromaParts] = k.split('::');
-    return parseInt(pid) === item.product_id && aromaParts.join('::') === item.aroma;
-  });
+          if (!data.success) {
+            const errores = data.insufficient.map(item => {
+              const key = Object.keys(cart).find(k => {
+                const [pid, ...aromaParts] = k.split('::');
+                return parseInt(pid) === item.product_id && aromaParts.join('::') === item.aroma;
+              });
 
-  const product = cart[key];
-  const name = product?.name || 'Producto';
+              const product = cart[key];
+              const name = product?.name || 'Producto';
 
-  return `
-    • <span class="stock-product">${name}</span> - 
-      <span class="stock-aroma">Aroma: ${item.aroma}</span> 
-      <span class="stock-labeluno">Disponible: ${item.available}</span> 
-      <span class="stock-label">Solicitado: ${item.requested}</span>
-  `;
-}).join('<br>');
+              return `
+                • <span class="stock-product">${name}</span> - 
+                  <span class="stock-aroma">Aroma: ${item.aroma}</span> 
+                  <span class="stock-labeluno">Disponible: ${item.available}</span> 
+                  <span class="stock-label">Solicitado: ${item.requested}</span>
+              `;
+            }).join('<br>');
 
+            Swal.fire({
+              icon: 'error',
+              title: 'Stock insuficiente',
+              html: `
+                <div class="swal-stock-html">
+                  <div class="swal-stock-list">${errores}</div>
+                  <p class="swal-stock-ajuste">Ajustá la cantidad desde tu carrito.</p>
+                </div>
+              `,
+              confirmButtonText: 'Entendido',
+              customClass: {
+                popup: 'swal-stock-popup',
+                title: 'swal-stock-title',
+                htmlContainer: 'swal-stock-container',
+                confirmButton: 'swal-stock-confirm-btn'
+              }
+            }).then(() => {
+              document.querySelectorAll('.cart-item').forEach(item => {
+                item.classList.remove('stock-error');
+                const msg = item.querySelector('.stock-error-msg');
+                if (msg) msg.remove();
+              });
 
+              data.insufficient.forEach(({ product_id, aroma }) => {
+                const selector = `.cart-item[data-id="${product_id}"][data-aroma="${aroma || 'sin-aroma'}"]`;
+                const cartItem = document.querySelector(selector);
+                if (cartItem) {
+                  cartItem.classList.add('stock-error');
+                  const msg = document.createElement('span');
+                  msg.className = 'stock-error-msg';
+                  msg.textContent = 'Stock insuficiente';
+                  cartItem.appendChild(msg);
+                }
+              });
+            });
 
-  return Swal.fire({
-    icon: 'error',
-    title: 'Stock insuficiente',
-    html: `
-      <div class="swal-stock-html">
-        
-        <div class="swal-stock-list">${errores}</div>
-        <p class="swal-stock-ajuste">Ajustá la cantidad desde tu carrito.</p>
-      </div>
-    `,
-    confirmButtonText: 'Entendido',
+            btn.disabled = false; // 🔓 volver a habilitar si hay error
+            return;
+          }
 
-    customClass: {
-      popup: 'swal-stock-popup',
-      title: 'swal-stock-title',
-      htmlContainer: 'swal-stock-container',
-      confirmButton: 'swal-stock-confirm-btn'
-    }
-  }).then(() => {
-    document.querySelectorAll('.cart-item').forEach(item => {
-      item.classList.remove('stock-error');
-      const msg = item.querySelector('.stock-error-msg');
-      if (msg) msg.remove();
-    });
-
-    data.insufficient.forEach(({ product_id, aroma }) => {
-      const selector = `.cart-item[data-id="${product_id}"][data-aroma="${aroma || 'sin-aroma'}"]`;
-      const cartItem = document.querySelector(selector);
-      if (cartItem) {
-        cartItem.classList.add('stock-error');
-        const msg = document.createElement('span');
-        msg.className = 'stock-error-msg';
-        msg.textContent = 'Stock insuficiente';
-        cartItem.appendChild(msg);
-      }
-    });
-  });
-}
-
-
-          // ✅ Todo OK
+          // ✅ Stock OK: procesar pedido
           confirmOrder(formattedDate);
         })
         .catch(() => {
@@ -1295,6 +1294,7 @@ const errores = data.insufficient.map(item => {
             title: 'Error al validar el stock',
             text: 'No se pudo verificar el stock. Intenta más tarde.',
           });
+          btn.disabled = false; // 🔓 volver a habilitar
         });
     })
     .catch(() => {
@@ -1303,6 +1303,7 @@ const errores = data.insufficient.map(item => {
         title: 'Error al validar el mínimo',
         text: 'No se pudo verificar el monto mínimo para mayoristas.',
       });
+      btn.disabled = false; // 🔓 volver a habilitar
     });
 });
 
